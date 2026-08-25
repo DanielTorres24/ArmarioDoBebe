@@ -248,6 +248,9 @@ npm start           # serve API + frontend na mesma porta
 
 ## Deploy no Render
 
+> **Guia passo a passo:** [DEPLOY.md](DEPLOY.md) — segue esse se estiveres a publicar
+> pela primeira vez ou se um deploy falhou. O resumo fica abaixo.
+
 O plano gratuito do Render impõe duas limitações que o deploy tem de contornar:
 **só permite uma base de dados PostgreSQL por conta** e **não dá acesso à Shell**
 do serviço. Por isso o [`render.yaml`](render.yaml) não cria a base de dados, e o
