@@ -3,9 +3,11 @@ import { Link } from 'react-router-dom';
 
 import { Botao, Esqueleto, Etiqueta, juntar } from '../components/ui';
 import ItemCard from '../components/ItemCard';
+import NotaDePrendas from '../components/NotaDePrendas';
+import RoupaPorTamanho from '../components/RoupaPorTamanho';
 import { api } from '../lib/api';
 import { useCatalogo } from '../lib/catalogo';
-import type { Item, ParentPreference } from '../types';
+import type { Estatisticas, Item, ParentPreference } from '../types';
 
 interface Resumo {
   armario: number;
@@ -19,6 +21,7 @@ export default function Home() {
   const { settings, carregando: aCarregarSite } = useCatalogo();
 
   const [resumo, setResumo] = useState<Resumo | null>(null);
+  const [stats, setStats] = useState<Estatisticas | null>(null);
   const [destaques, setDestaques] = useState<Item[]>([]);
   const [preferencias, setPreferencias] = useState<ParentPreference[]>([]);
   const [carregando, setCarregando] = useState(true);
@@ -28,8 +31,14 @@ export default function Home() {
 
     (async () => {
       try {
-        const [todos, gostos] = await Promise.all([api.items(), api.preferences()]);
+        const [todos, gostos, numeros] = await Promise.all([
+          api.items(),
+          api.preferences(),
+          api.stats(),
+        ]);
         if (!ativo) return;
+
+        setStats(numeros);
 
         const fazFalta = todos.filter((item) => item.status === 'NEEDED');
         const desejados = todos.filter((item) => item.status === 'WANTED');
@@ -59,7 +68,7 @@ export default function Home() {
   }, []);
 
   const cartoes = [
-    { emoji: '📦', valor: resumo?.armario, rotulo: 'artigos no armário', para: '/armario' },
+    { emoji: '📦', valor: stats?.totalUnidades, rotulo: 'peças no armário', para: '/armario' },
     { emoji: '🟢', valor: resumo?.fazFalta, rotulo: 'coisas que fazem falta', para: '/precisamos' },
     { emoji: '⭐', valor: resumo?.desejados, rotulo: 'coisas muito desejadas', para: '/mais-desejados' },
     { emoji: '🎁', valor: resumo?.reservadas, rotulo: 'prendas já reservadas', para: '/armario' },
@@ -99,6 +108,8 @@ export default function Home() {
         </div>
       </section>
 
+      <NotaDePrendas className="mb-6" />
+
       {/* ------------------------------ Resumo ------------------------------ */}
       <section aria-label="Resumo rápido" className="mb-8 grid grid-cols-2 gap-3 lg:grid-cols-4">
         {cartoes.map((cartao) => (
@@ -122,6 +133,15 @@ export default function Home() {
           </Link>
         ))}
       </section>
+
+      {/* --------------------------- Roupa por mês -------------------------- */}
+      <div className="mb-8">
+        <RoupaPorTamanho
+          dados={stats?.roupaPorTamanho ?? []}
+          semTamanho={stats?.roupaSemTamanho}
+          carregando={carregando}
+        />
+      </div>
 
       {/* ----------------------------- Destaques ---------------------------- */}
       {destaques.length > 0 && (

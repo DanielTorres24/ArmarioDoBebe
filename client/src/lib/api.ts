@@ -6,6 +6,7 @@ import type {
   AgeRange,
   Category,
   DashboardData,
+  Estatisticas,
   Item,
   ParentPreference,
   PublicReservation,
@@ -109,10 +110,12 @@ export const api = {
   preferences: () =>
     pedir<{ preferences: ParentPreference[] }>('/api/preferences').then((r) => r.preferences),
 
-  suggestions: (faixa?: { min?: number; max?: number }) =>
-    pedir<{ suggestions: Suggestion[] }>(
-      `/api/suggestions${query({ minPrice: faixa?.min, maxPrice: faixa?.max })}`,
-    ).then((r) => r.suggestions),
+  suggestions: (filtros?: { category?: string }) =>
+    pedir<{ suggestions: Suggestion[] }>(`/api/suggestions${query(filtros ?? {})}`).then(
+      (r) => r.suggestions,
+    ),
+
+  stats: () => pedir<{ stats: Estatisticas }>('/api/stats').then((r) => r.stats),
 
   items: (filtros: FiltrosDeArtigos = {}) =>
     pedir<{ items: Item[] }>(`/api/items${query(filtros as Record<string, unknown>)}`).then(

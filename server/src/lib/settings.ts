@@ -16,6 +16,8 @@ export const DEFINICOES_INICIAIS = {
   preferencesIntro:
     'Não é uma lista de regras — é só para ajudar quem não sabe bem o que escolher.',
   footerText: 'Feito com carinho para o pequeno Diogo 💙👶',
+  giftNote:
+    'Não é preciso comprar nada novo! Em segunda mão e em bom estado é igualmente bem-vindo — a vida está cara e nós agradecemos de coração. O que conta é o carinho. 💙',
   reservationEnabled: true,
   allowThinking: true,
   allowCancellation: true,

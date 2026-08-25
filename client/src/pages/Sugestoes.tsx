@@ -1,27 +1,39 @@
 import { useEffect, useState } from 'react';
 
+import NotaDePrendas from '../components/NotaDePrendas';
 import { Botao, EstadoVazio, Esqueleto, Etiqueta, juntar } from '../components/ui';
 import { api } from '../lib/api';
-import { intervaloDePreco } from '../lib/format';
-import { FAIXAS_DE_ORCAMENTO, type Suggestion } from '../types';
+import { pecas } from '../lib/format';
+import { useCatalogo } from '../lib/catalogo';
+import type { ContagemPorCategoria, Estatisticas, Suggestion } from '../types';
 
-/** "Não sabes o que oferecer?" — sugestões por faixa de orçamento. */
+/**
+ * "Não sabes o que oferecer?" — ideias que os pais deixaram, por categoria.
+ *
+ * Esta página filtrava por orçamento. Deixou de o fazer: em vez de dizer quanto
+ * custa, diz quantas peças já existem naquela categoria, que é o que evita
+ * repetidos.
+ */
 export default function Sugestoes() {
-  const [faixa, setFaixa] = useState(FAIXAS_DE_ORCAMENTO[1]!.id);
+  const { categories } = useCatalogo();
+
+  const [categoria, setCategoria] = useState<string | null>(null);
   const [sugestoes, setSugestoes] = useState<Suggestion[]>([]);
+  const [stats, setStats] = useState<Estatisticas | null>(null);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState('');
-
-  const escolhida = FAIXAS_DE_ORCAMENTO.find((f) => f.id === faixa)!;
 
   useEffect(() => {
     let ativo = true;
     setCarregando(true);
     setErro('');
 
-    api
-      .suggestions({ min: escolhida.min, max: escolhida.max })
-      .then((lista) => ativo && setSugestoes(lista))
+    Promise.all([api.suggestions(categoria ? { category: categoria } : undefined), api.stats()])
+      .then(([lista, numeros]) => {
+        if (!ativo) return;
+        setSugestoes(lista);
+        setStats(numeros);
+      })
       .catch((problema: unknown) => {
         if (ativo) setErro(problema instanceof Error ? problema.message : 'Não foi possível carregar.');
       })
@@ -30,38 +42,62 @@ export default function Sugestoes() {
     return () => {
       ativo = false;
     };
-  }, [escolhida]);
+  }, [categoria]);
+
+  const contagem = (id: string | null | undefined): ContagemPorCategoria | undefined =>
+    id ? stats?.porCategoria.find((c) => c.id === id) : undefined;
 
   return (
     <>
       <header className="mb-5">
         <h1 className="text-3xl">🤔 Não sabes o que oferecer?</h1>
         <p className="mt-2 max-w-2xl text-tinta-suave">
-          Escolhe quanto queres gastar e mostramos-te ideias que os pais deixaram sugeridas.
+          Estas são ideias que os pais deixaram sugeridas. Ao lado de cada uma dizemos quantas peças
+          o Diogo já tem nessa categoria, para não haver repetidos.
         </p>
       </header>
 
-      <div
-        role="group"
-        aria-label="Escolher orçamento"
-        className="mb-6 flex flex-wrap gap-2"
-      >
-        {FAIXAS_DE_ORCAMENTO.map((opcao) => (
-          <button
-            key={opcao.id}
-            type="button"
-            aria-pressed={faixa === opcao.id}
-            onClick={() => setFaixa(opcao.id)}
-            className={juntar(
-              'min-h-[44px] rounded-pill px-4 py-2 font-bold transition',
-              faixa === opcao.id
-                ? 'bg-azul-500 text-white shadow-botao'
-                : 'border border-azul-200 bg-white text-tinta hover:bg-azul-50',
-            )}
-          >
-            {opcao.label}
-          </button>
-        ))}
+      <NotaDePrendas className="mb-5" />
+
+      <div role="group" aria-label="Filtrar por categoria" className="mb-6 flex flex-wrap gap-2">
+        <button
+          type="button"
+          aria-pressed={categoria === null}
+          onClick={() => setCategoria(null)}
+          className={juntar(
+            'min-h-[44px] rounded-pill px-4 py-2 font-bold transition',
+            categoria === null
+              ? 'bg-azul-500 text-white shadow-botao'
+              : 'border border-azul-200 bg-white text-tinta hover:bg-azul-50',
+          )}
+        >
+          Todas
+        </button>
+
+        {categories.map((opcao) => {
+          const numeros = contagem(opcao.id);
+          return (
+            <button
+              key={opcao.id}
+              type="button"
+              aria-pressed={categoria === opcao.id}
+              onClick={() => setCategoria(opcao.id)}
+              className={juntar(
+                'min-h-[44px] rounded-pill px-4 py-2 font-bold transition',
+                categoria === opcao.id
+                  ? 'bg-azul-500 text-white shadow-botao'
+                  : 'border border-azul-200 bg-white text-tinta hover:bg-azul-50',
+              )}
+            >
+              <span aria-hidden="true">{opcao.icon}</span> {opcao.name}
+              {numeros ? (
+                <span className="ml-1.5 font-normal opacity-80 tabular-nums">
+                  {numeros.unidades}
+                </span>
+              ) : null}
+            </button>
+          );
+        })}
       </div>
 
       <section aria-busy={carregando} aria-live="polite">
@@ -82,11 +118,11 @@ export default function Sugestoes() {
         {!carregando && !erro && sugestoes.length === 0 && (
           <EstadoVazio
             emoji="🎁"
-            titulo="Ainda não há sugestões nesta faixa"
-            texto="Experimenta outro orçamento — ou vê diretamente o que faz falta."
+            titulo="Ainda não há ideias nesta categoria"
+            texto="Experimenta outra categoria — ou vê diretamente o que faz falta."
           >
-            <Botao variante="contorno" onClick={() => setFaixa(FAIXAS_DE_ORCAMENTO[1]!.id)}>
-              Ver outra faixa
+            <Botao variante="contorno" onClick={() => setCategoria(null)}>
+              Ver todas as ideias
             </Botao>
           </EstadoVazio>
         )}
@@ -94,7 +130,7 @@ export default function Sugestoes() {
         {!carregando && !erro && sugestoes.length > 0 && (
           <div className="grid grid-cols-[repeat(auto-fill,minmax(min(260px,100%),1fr))] gap-3">
             {sugestoes.map((sugestao) => {
-              const preco = intervaloDePreco(sugestao.minPrice, sugestao.maxPrice);
+              const numeros = contagem(sugestao.categoryId);
 
               return (
                 <article key={sugestao.id} className="cartao flex flex-col p-5">
@@ -116,7 +152,13 @@ export default function Sugestoes() {
                   )}
 
                   <div className="mt-auto pt-3">
-                    {preco && <p className="font-bold text-azul-700">{preco}</p>}
+                    {numeros && (
+                      <p className="text-sm font-bold text-azul-700">
+                        {numeros.unidades === 0
+                          ? `Ainda não temos nada em ${numeros.name.toLowerCase()}`
+                          : `Já temos ${pecas(numeros.unidades)} em ${numeros.name.toLowerCase()}`}
+                      </p>
+                    )}
                     {sugestao.productUrl && (
                       <a
                         href={sugestao.productUrl}

@@ -4,15 +4,12 @@ import { Botao, Campo, EstadoVazio, Esqueleto, Etiqueta, MensagemDeErro, Modal, 
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { adminApi } from '../../lib/api';
 import { useCatalogo } from '../../lib/catalogo';
-import { intervaloDePreco } from '../../lib/format';
-import { FAIXAS_DE_ORCAMENTO, PRIORIDADES, type Suggestion } from '../../types';
+import { PRIORIDADES, type Suggestion } from '../../types';
 
 interface Formulario {
   name: string;
   description: string;
   categoryId: string;
-  minPrice: string;
-  maxPrice: string;
   priority: string;
   productUrl: string;
   imageUrl: string;
@@ -23,8 +20,6 @@ const vazio: Formulario = {
   name: '',
   description: '',
   categoryId: '',
-  minPrice: '',
-  maxPrice: '',
   priority: '2',
   productUrl: '',
   imageUrl: '',
@@ -51,21 +46,13 @@ export default function Suggestions() {
     void carregar();
   }, [carregar]);
 
-  /** Em que faixas de orçamento esta sugestão vai aparecer. */
-  const faixasDe = (sugestao: Suggestion) =>
-    FAIXAS_DE_ORCAMENTO.filter((faixa) => {
-      const abaixo = faixa.max != null && sugestao.minPrice != null && sugestao.minPrice > faixa.max;
-      const acima = faixa.min != null && sugestao.maxPrice != null && sugestao.maxPrice < faixa.min;
-      return !abaixo && !acima;
-    });
-
   return (
     <>
       <header className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl">Sugestões</h1>
           <p className="mt-1 text-sm text-tinta-suave">
-            Aparecem na página <strong>🤔 Não sabes o que oferecer?</strong>, agrupadas por orçamento.
+            Aparecem na página <strong>🤔 Não sabes o que oferecer?</strong>, agrupadas por categoria.
           </p>
         </div>
         <Botao variante="primario" onClick={() => setAEditar('nova')}>
@@ -106,15 +93,9 @@ export default function Suggestions() {
                       {sugestao.category.icon} {sugestao.category.name}
                     </Etiqueta>
                   )}
-                  <Etiqueta tom="neutro">
-                    {intervaloDePreco(sugestao.minPrice, sugestao.maxPrice) ?? 'sem preço'}
-                  </Etiqueta>
                   <Etiqueta tom="neutro">prioridade {sugestao.priority}</Etiqueta>
                   {!sugestao.isActive && <Etiqueta tom="rosa">inativa</Etiqueta>}
                 </div>
-                <p className="mt-2 text-xs text-tinta-suave">
-                  Aparece em: {faixasDe(sugestao).map((faixa) => faixa.label).join(', ') || 'nenhuma faixa'}
-                </p>
               </div>
 
               <div className="flex gap-2">
@@ -183,8 +164,6 @@ function FormularioDeSugestao({
           name: sugestao.name,
           description: sugestao.description ?? '',
           categoryId: sugestao.categoryId ?? '',
-          minPrice: sugestao.minPrice == null ? '' : String(sugestao.minPrice),
-          maxPrice: sugestao.maxPrice == null ? '' : String(sugestao.maxPrice),
           priority: String(sugestao.priority),
           productUrl: sugestao.productUrl ?? '',
           imageUrl: sugestao.imageUrl ?? '',
@@ -212,12 +191,6 @@ function FormularioDeSugestao({
     const novos: Partial<Record<keyof Formulario, string>> = {};
     if (!form.name.trim()) novos.name = 'Escreve o nome da sugestão.';
 
-    const min = form.minPrice === '' ? null : Number(form.minPrice);
-    const max = form.maxPrice === '' ? null : Number(form.maxPrice);
-    if (min !== null && max !== null && min > max) {
-      novos.minPrice = 'O mínimo não pode ser maior do que o máximo.';
-    }
-
     setErros(novos);
     if (Object.keys(novos).length > 0) return;
 
@@ -227,8 +200,6 @@ function FormularioDeSugestao({
         name: form.name.trim(),
         description: form.description.trim(),
         categoryId: form.categoryId || null,
-        minPrice: min,
-        maxPrice: max,
         priority: Number(form.priority),
         productUrl: form.productUrl.trim(),
         imageUrl: form.imageUrl.trim(),
@@ -284,14 +255,8 @@ function FormularioDeSugestao({
 
         <div className="flex flex-wrap gap-3">
           <div className="min-w-[130px] flex-1">
-            <Campo id="sg-min" label="Preço mínimo (€)" erro={erros.minPrice}>
-              <input id="sg-min" className="campo" type="number" min={0} value={form.minPrice} onChange={mudar('minPrice')} aria-invalid={!!erros.minPrice} />
-            </Campo>
           </div>
           <div className="min-w-[130px] flex-1">
-            <Campo id="sg-max" label="Preço máximo (€)">
-              <input id="sg-max" className="campo" type="number" min={0} value={form.maxPrice} onChange={mudar('maxPrice')} />
-            </Campo>
           </div>
         </div>
 

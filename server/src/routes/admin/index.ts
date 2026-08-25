@@ -5,7 +5,6 @@ import { prisma } from '../../lib/prisma.js';
 import { asyncHandler, HttpError, naoEncontrado, validar } from '../../lib/http.js';
 import { requireAdmin, signAdminToken, verifyPassword } from '../../lib/auth.js';
 import { definicoes, limparCacheDeDefinicoes } from '../../lib/settings.js';
-import { precos } from '../../lib/serialize.js';
 import {
   categoriaSchema,
   criarArtigoDeAdmin,
@@ -114,7 +113,7 @@ adminRouter.get(
         icon: categoria.icon,
         count: porCategoria.find((l) => l.categoryId === categoria.id)?._count._all ?? 0,
       })),
-      latestItems: ultimosArtigos.map(precos),
+      latestItems: ultimosArtigos,
       latestReservations: ultimasReservas,
     });
   }),
@@ -150,7 +149,7 @@ adminRouter.get(
       include: incluirArtigo,
     });
 
-    res.json({ items: items.map(precos) });
+    res.json({ items });
   }),
 );
 
@@ -169,15 +168,13 @@ adminRouter.post(
         quantity: dados.quantity,
         status: dados.status,
         priority: dados.priority,
-        minPrice: dados.minPrice ?? null,
-        maxPrice: dados.maxPrice ?? null,
         productUrl: dados.productUrl ?? null,
         isFeatured: dados.isFeatured,
       },
       include: incluirArtigo,
     });
 
-    res.status(201).json({ item: precos(item) });
+    res.status(201).json({ item });
   }),
 );
 
@@ -201,15 +198,13 @@ adminRouter.put(
         ...(dados.quantity !== undefined ? { quantity: dados.quantity } : {}),
         ...(dados.status !== undefined ? { status: dados.status } : {}),
         ...(dados.priority !== undefined ? { priority: dados.priority } : {}),
-        ...(dados.minPrice !== undefined ? { minPrice: dados.minPrice } : {}),
-        ...(dados.maxPrice !== undefined ? { maxPrice: dados.maxPrice } : {}),
         ...(dados.productUrl !== undefined ? { productUrl: dados.productUrl } : {}),
         ...(dados.isFeatured !== undefined ? { isFeatured: dados.isFeatured } : {}),
       },
       include: incluirArtigo,
     });
 
-    res.json({ item: precos(item) });
+    res.json({ item });
   }),
 );
 
@@ -377,7 +372,7 @@ adminRouter.get(
       orderBy: [{ priority: 'desc' }, { name: 'asc' }],
       include: { category: true },
     });
-    res.json({ suggestions: suggestions.map(precos) });
+    res.json({ suggestions });
   }),
 );
 
@@ -390,8 +385,6 @@ adminRouter.post(
         name: dados.name,
         description: dados.description ?? null,
         categoryId: dados.categoryId ?? null,
-        minPrice: dados.minPrice ?? null,
-        maxPrice: dados.maxPrice ?? null,
         priority: dados.priority,
         productUrl: dados.productUrl ?? null,
         imageUrl: dados.imageUrl ?? null,
@@ -399,7 +392,7 @@ adminRouter.post(
       },
       include: { category: true },
     });
-    res.status(201).json({ suggestion: precos(suggestion) });
+    res.status(201).json({ suggestion });
   }),
 );
 
@@ -416,8 +409,6 @@ adminRouter.put(
         name: dados.name,
         description: dados.description ?? null,
         categoryId: dados.categoryId ?? null,
-        minPrice: dados.minPrice ?? null,
-        maxPrice: dados.maxPrice ?? null,
         priority: dados.priority,
         productUrl: dados.productUrl ?? null,
         imageUrl: dados.imageUrl ?? null,
@@ -425,7 +416,7 @@ adminRouter.put(
       },
       include: { category: true },
     });
-    res.json({ suggestion: precos(suggestion) });
+    res.json({ suggestion });
   }),
 );
 

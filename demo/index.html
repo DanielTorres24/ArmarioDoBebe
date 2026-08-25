@@ -94,6 +94,27 @@
       font-size: clamp(0.92rem, 3.3vw, 1.05rem);
     }
 
+    .nota-prendas {
+      display: flex;
+      gap: 12px;
+      max-width: 52ch;
+      margin: 16px auto 0;
+      padding: 14px 16px;
+      background: #eaf7f0;
+      border: 1px solid rgba(47, 125, 85, 0.25);
+      border-radius: 16px;
+      color: #2f3d4a;
+      font-size: clamp(0.9rem, 3.2vw, 1rem);
+      text-align: left;
+      line-height: 1.5;
+    }
+
+    .nota-prendas span:first-child {
+      flex-shrink: 0;
+      font-size: 1.3rem;
+      line-height: 1;
+    }
+
     .aviso-demo {
       max-width: 46ch;
       margin: 14px auto 0;
@@ -394,6 +415,12 @@
       Assim ninguém repete e cada mimo conta.
     </p>
     <p class="aviso-demo">Demonstração: os dados são de exemplo e nada fica guardado.</p>
+
+    <p class="nota-prendas">
+      <span aria-hidden="true">♻️</span>
+      <span>Não é preciso comprar nada novo! Em segunda mão e em bom estado é igualmente
+      bem-vindo — a vida está cara e nós agradecemos de coração. O que conta é o carinho. 💙</span>
+    </p>
   </header>
 
   <main>

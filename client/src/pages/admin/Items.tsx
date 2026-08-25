@@ -4,7 +4,6 @@ import { Botao, Campo, EstadoVazio, Esqueleto, Etiqueta, MensagemDeErro, Modal, 
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { adminApi } from '../../lib/api';
 import { tomDoEstado, useCatalogo, useEstado } from '../../lib/catalogo';
-import { intervaloDePreco } from '../../lib/format';
 import { PRIORIDADES, type AdminItem } from '../../types';
 
 interface Formulario {
@@ -16,8 +15,6 @@ interface Formulario {
   size: string;
   quantity: string;
   description: string;
-  minPrice: string;
-  maxPrice: string;
   productUrl: string;
   isFeatured: boolean;
 }
@@ -31,8 +28,6 @@ const vazio: Formulario = {
   size: '',
   quantity: '1',
   description: '',
-  minPrice: '',
-  maxPrice: '',
   productUrl: '',
   isFeatured: false,
 };
@@ -46,8 +41,6 @@ const deItem = (item: AdminItem): Formulario => ({
   size: item.size ?? '',
   quantity: String(item.quantity),
   description: item.description ?? '',
-  minPrice: item.minPrice == null ? '' : String(item.minPrice),
-  maxPrice: item.maxPrice == null ? '' : String(item.maxPrice),
   productUrl: item.productUrl ?? '',
   isFeatured: item.isFeatured,
 });
@@ -162,7 +155,6 @@ export default function Items() {
         <ul className="flex flex-col gap-2.5">
           {items.map((item) => {
             const estado = estadoDe(item.status);
-            const preco = intervaloDePreco(item.minPrice, item.maxPrice);
             const reservasAtivas = item.reservations.filter((r) => r.status !== 'CANCELLED');
 
             return (
@@ -186,7 +178,6 @@ export default function Items() {
                       <Etiqueta tom="verde">🎁 {reservasAtivas[0]!.guestName}</Etiqueta>
                     )}
                   </div>
-                  {preco && <p className="mt-1.5 text-sm font-bold text-azul-700">{preco}</p>}
                   {item.ownerName && (
                     <p className="mt-1 text-xs text-tinta-suave">Adicionado por {item.ownerName}</p>
                   )}
@@ -286,13 +277,6 @@ function FormularioDeArtigo({
       novos.quantity = 'A quantidade tem de ser entre 1 e 999.';
     }
 
-    const min = form.minPrice === '' ? null : Number(form.minPrice);
-    const max = form.maxPrice === '' ? null : Number(form.maxPrice);
-    if (min !== null && (Number.isNaN(min) || min < 0)) novos.minPrice = 'Preço inválido.';
-    if (max !== null && (Number.isNaN(max) || max < 0)) novos.maxPrice = 'Preço inválido.';
-    if (min !== null && max !== null && min > max) {
-      novos.minPrice = 'O mínimo não pode ser maior do que o máximo.';
-    }
 
     setErros(novos);
     return Object.keys(novos).length === 0;
@@ -314,8 +298,6 @@ function FormularioDeArtigo({
         size: form.size.trim(),
         quantity: Number(form.quantity),
         description: form.description.trim(),
-        minPrice: form.minPrice === '' ? null : Number(form.minPrice),
-        maxPrice: form.maxPrice === '' ? null : Number(form.maxPrice),
         productUrl: form.productUrl.trim(),
         isFeatured: form.isFeatured,
       };
@@ -404,19 +386,6 @@ function FormularioDeArtigo({
         <Campo id="f-descricao" label="Descrição">
           <textarea id="f-descricao" className="campo" rows={3} value={form.description} onChange={mudar('description')} />
         </Campo>
-
-        <div className="flex flex-wrap gap-3">
-          <div className="min-w-[130px] flex-1">
-            <Campo id="f-min" label="Preço mínimo (€)" erro={erros.minPrice}>
-              <input id="f-min" className="campo" type="number" min={0} step="1" value={form.minPrice} onChange={mudar('minPrice')} aria-invalid={!!erros.minPrice} />
-            </Campo>
-          </div>
-          <div className="min-w-[130px] flex-1">
-            <Campo id="f-max" label="Preço máximo (€)" erro={erros.maxPrice}>
-              <input id="f-max" className="campo" type="number" min={0} step="1" value={form.maxPrice} onChange={mudar('maxPrice')} aria-invalid={!!erros.maxPrice} />
-            </Campo>
-          </div>
-        </div>
 
         <Campo id="f-link" label="Link para um produto de referência" dica="Opcional — ajuda quem não sabe o que procurar.">
           <input id="f-link" className="campo" type="url" placeholder="https://..." value={form.productUrl} onChange={mudar('productUrl')} />

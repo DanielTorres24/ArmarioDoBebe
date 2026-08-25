@@ -1,6 +1,6 @@
 import { Botao, Etiqueta, juntar } from './ui';
 import { tomDoEstado, useCatalogo, useEstado } from '../lib/catalogo';
-import { intervaloDePreco } from '../lib/format';
+import { pecas } from '../lib/format';
 import type { Item } from '../types';
 
 /**
@@ -25,7 +25,9 @@ export default function ItemCard({
   const estadoDe = useEstado(statuses);
   const estado = estadoDe(item.status);
 
-  const preco = intervaloDePreco(item.minPrice, item.maxPrice);
+  // Só faz sentido dizer "já tem N" do que é posse; um pedido não se conta.
+  const jaTem = item.status === 'OWNED' || item.status === 'SOME';
+
   const minhaReserva = item.reservations.find((reserva) => reserva.isMine);
   const reservaDeOutro = item.reservations.find((reserva) => !reserva.isMine);
 
@@ -43,7 +45,11 @@ export default function ItemCard({
           <Etiqueta tom={tomDoEstado(estado.color)}>
             <span aria-hidden="true">{estado.icon}</span> {estado.label}
           </Etiqueta>
-          {item.quantity > 1 && <Etiqueta tom="neutro">{item.quantity}x</Etiqueta>}
+          {jaTem && item.quantity > 1 && (
+            <Etiqueta tom="neutro">
+              {item.quantity} <span className="sr-only">unidades</span>
+            </Etiqueta>
+          )}
         </div>
       </div>
 
@@ -62,7 +68,11 @@ export default function ItemCard({
         <p className="text-sm text-tinta-suave [overflow-wrap:anywhere]">{item.description}</p>
       )}
 
-      {preco && <p className="mt-2 text-sm font-bold text-azul-700">{preco}</p>}
+      {jaTem && (
+        <p className="mt-2 text-sm font-bold text-azul-700">
+          Já temos {pecas(item.quantity)}
+        </p>
+      )}
 
       {item.productUrl && (
         <a

@@ -17,13 +17,6 @@ const textoOpcional = (max: number) =>
     .nullable()
     .optional();
 
-const precoOpcional = z.coerce
-  .number({ invalid_type_error: 'O preço tem de ser um número.' })
-  .min(0, 'O preço não pode ser negativo.')
-  .max(99999, 'O preço é demasiado alto.')
-  .nullable()
-  .optional();
-
 const urlOpcional = z
   .string()
   .trim()
@@ -76,20 +69,9 @@ const camposDeAdmin = {
     .min(1, 'A prioridade vai de 1 a 5.')
     .max(5, 'A prioridade vai de 1 a 5.')
     .default(2),
-  minPrice: precoOpcional,
-  maxPrice: precoOpcional,
   productUrl: urlOpcional,
   isFeatured: z.coerce.boolean().default(false),
 };
-
-const precosCoerentes = <T extends { minPrice?: number | null; maxPrice?: number | null }>(
-  schema: z.ZodType<T>,
-) =>
-  schema.refine(
-    (dados) =>
-      dados.minPrice == null || dados.maxPrice == null || dados.minPrice <= dados.maxPrice,
-    { message: 'O preço mínimo não pode ser maior do que o máximo.', path: ['minPrice'] },
-  );
 
 export const criarArtigoDeConvidado = z.object({
   ...camposBaseDoArtigo,
@@ -102,13 +84,11 @@ export const editarArtigoDeConvidado = z.object({
   ownerId: guestIdSchema,
 });
 
-export const criarArtigoDeAdmin = precosCoerentes(
-  z.object({ ...camposBaseDoArtigo, ...camposDeAdmin }),
-);
+export const criarArtigoDeAdmin = z.object({ ...camposBaseDoArtigo, ...camposDeAdmin });
 
-export const editarArtigoDeAdmin = precosCoerentes(
-  z.object({ ...camposBaseDoArtigo, ...camposDeAdmin }).partial(),
-);
+export const editarArtigoDeAdmin = z
+  .object({ ...camposBaseDoArtigo, ...camposDeAdmin })
+  .partial();
 
 export const apagarArtigoDeConvidado = z.object({ ownerId: guestIdSchema });
 
@@ -158,19 +138,15 @@ export const faixaEtariaSchema = z.object({
   isActive: z.coerce.boolean().default(true),
 });
 
-export const sugestaoSchema = precosCoerentes(
-  z.object({
-    name: texto(120, 'A sugestão precisa de um nome.').min(1, 'A sugestão precisa de um nome.'),
-    description: textoOpcional(600),
-    categoryId: textoOpcional(64),
-    minPrice: precoOpcional,
-    maxPrice: precoOpcional,
-    priority: z.coerce.number().int().min(1).max(5).default(2),
-    productUrl: urlOpcional,
-    imageUrl: urlOpcional,
-    isActive: z.coerce.boolean().default(true),
-  }),
-);
+export const sugestaoSchema = z.object({
+  name: texto(120, 'A sugestão precisa de um nome.').min(1, 'A sugestão precisa de um nome.'),
+  description: textoOpcional(600),
+  categoryId: textoOpcional(64),
+  priority: z.coerce.number().int().min(1).max(5).default(2),
+  productUrl: urlOpcional,
+  imageUrl: urlOpcional,
+  isActive: z.coerce.boolean().default(true),
+});
 
 export const preferenciaSchema = z.object({
   title: texto(120, 'A preferência precisa de um título.').min(1, 'A preferência precisa de um título.'),
@@ -198,6 +174,8 @@ export const definicoesSchema = z.object({
   preferencesTitle: texto(120, 'O título das preferências é obrigatório.').min(1, 'O título das preferências é obrigatório.'),
   preferencesIntro: textoOpcional(600),
   footerText: texto(200, 'O rodapé é obrigatório.').min(1, 'O rodapé é obrigatório.'),
+  // Pode ficar vazia: os pais decidem se querem mostrar a nota.
+  giftNote: texto(400, 'A nota é demasiado longa.').default(''),
   reservationEnabled: z.coerce.boolean(),
   allowThinking: z.coerce.boolean(),
   allowCancellation: z.coerce.boolean(),

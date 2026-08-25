@@ -1,20 +1,9 @@
-import type { Prisma, ReserverVisibility } from '@prisma/client';
+import type { ReserverVisibility } from '@prisma/client';
 
 /**
- * Converte as linhas da base de dados no formato que o frontend consome:
- * Decimal → número, e reservas filtradas conforme a privacidade escolhida
- * pelos pais.
+ * Prepara as linhas da base de dados para o frontend: reservas filtradas
+ * conforme a privacidade escolhida pelos pais.
  */
-
-type ComDecimais = { minPrice: Prisma.Decimal | null; maxPrice: Prisma.Decimal | null };
-
-const numero = (valor: Prisma.Decimal | null) => (valor === null ? null : Number(valor));
-
-export const precos = <T extends ComDecimais>(linha: T) => ({
-  ...linha,
-  minPrice: numero(linha.minPrice),
-  maxPrice: numero(linha.maxPrice),
-});
 
 /** Reservas que ainda "ocupam" um artigo. */
 export const RESERVAS_ATIVAS = ['THINKING', 'RESERVED', 'GIFTED'] as const;

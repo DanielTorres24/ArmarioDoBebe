@@ -134,6 +134,23 @@ export default function Settings() {
         <Campo id="d-rodape" label="Texto do rodapé *" erro={erros.footerText}>
           <input id="d-rodape" className="campo" value={form.footerText} onChange={texto('footerText')} aria-invalid={!!erros.footerText} />
         </Campo>
+
+        <Campo
+          id="d-nota"
+          label="Nota sobre prendas"
+          dica="Aparece na página inicial, no armário e nas sugestões. Deixa vazio para não mostrar nada."
+          erro={erros.giftNote}
+        >
+          <textarea
+            id="d-nota"
+            className="campo"
+            rows={3}
+            maxLength={400}
+            value={form.giftNote}
+            onChange={texto('giftNote')}
+            aria-invalid={!!erros.giftNote}
+          />
+        </Campo>
       </section>
 
       <section className="cartao mb-4 p-5" aria-labelledby="d-inicial">

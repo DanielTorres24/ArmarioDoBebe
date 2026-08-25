@@ -8,7 +8,7 @@ import {
   criarArtigoDeConvidado,
   editarArtigoDeConvidado,
 } from '../../lib/validation.js';
-import { guestIdDoPedido, precos, reservaPublica, RESERVAS_ATIVAS } from '../../lib/serialize.js';
+import { guestIdDoPedido, reservaPublica, RESERVAS_ATIVAS } from '../../lib/serialize.js';
 import { definicoes } from '../../lib/settings.js';
 
 export const itemsPublicRouter = Router();
@@ -29,7 +29,7 @@ async function comoPublico(item: ArtigoCarregado, guestId: string | null) {
   const { reserverVisibility } = await definicoes();
 
   return {
-    ...precos(item),
+    ...item,
     reservations: item.reservations.map((r) => reservaPublica(r, reserverVisibility, guestId)),
     isReserved: item.reservations.length > 0,
     isMine: guestId !== null && item.ownerId === guestId,
@@ -41,7 +41,7 @@ itemsPublicRouter.get(
   '/',
   asyncHandler(async (req, res) => {
     const guestId = guestIdDoPedido(req.header('x-guest-id'));
-    const { search, category, status, ageRange, priority, minPrice, maxPrice, reserved, mine, sort } =
+    const { search, category, status, ageRange, priority, reserved, mine, sort } =
       req.query as Record<string, string | undefined>;
 
     const where: Prisma.ItemWhereInput = {};
@@ -67,8 +67,6 @@ itemsPublicRouter.get(
       if (estados.length > 0) where.status = { in: estados as Prisma.EnumItemStatusFilter['in'] };
     }
 
-    if (minPrice) condicoes.push({ OR: [{ maxPrice: null }, { maxPrice: { gte: Number(minPrice) } }] });
-    if (maxPrice) condicoes.push({ OR: [{ minPrice: null }, { minPrice: { lte: Number(maxPrice) } }] });
 
     if (reserved === 'true') where.reservations = { some: { status: { in: [...RESERVAS_ATIVAS] } } };
     if (reserved === 'false') where.reservations = { none: { status: { in: [...RESERVAS_ATIVAS] } } };
@@ -91,7 +89,7 @@ itemsPublicRouter.get(
 
     res.json({
       items: items.map((item) => ({
-        ...precos(item),
+        ...item,
         reservations: item.reservations.map((r) => reservaPublica(r, reserverVisibility, guestId)),
         isReserved: item.reservations.length > 0,
         isMine: guestId !== null && item.ownerId === guestId,

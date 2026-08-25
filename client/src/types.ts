@@ -52,8 +52,6 @@ export interface Item {
   ageRangeId: string | null;
   ageRange?: AgeRange | null;
   quantity: number;
-  minPrice: number | null;
-  maxPrice: number | null;
   productUrl: string | null;
   isFeatured: boolean;
   ownerId: string | null;
@@ -89,8 +87,6 @@ export interface Suggestion {
   description: string | null;
   categoryId: string | null;
   category?: Category | null;
-  minPrice: number | null;
-  maxPrice: number | null;
   priority: number;
   productUrl: string | null;
   imageUrl: string | null;
@@ -118,6 +114,8 @@ export interface SiteSettings {
   preferencesTitle: string;
   preferencesIntro: string | null;
   footerText: string;
+  /** Nota sobre prendas em segunda mão. Vazia = não aparece. */
+  giftNote: string;
   reservationEnabled: boolean;
   allowThinking: boolean;
   allowCancellation: boolean;
@@ -143,20 +141,30 @@ export interface DashboardData {
   latestReservations: AdminReservation[];
 }
 
-/** Faixas de orçamento da página de sugestões. */
-export interface FaixaDeOrcamento {
+/** Quantidades devolvidas por /api/stats — substituem a informação de preço. */
+export interface ContagemPorCategoria {
   id: string;
-  label: string;
-  min?: number;
-  max?: number;
+  slug: string;
+  name: string;
+  icon: string;
+  unidades: number;
+  pedidos: number;
 }
 
-export const FAIXAS_DE_ORCAMENTO: FaixaDeOrcamento[] = [
-  { id: 'ate-20', label: 'Até 20€', max: 20 },
-  { id: '20-50', label: '20€ – 50€', min: 20, max: 50 },
-  { id: '50-100', label: '50€ – 100€', min: 50, max: 100 },
-  { id: 'mais-100', label: 'Mais de 100€', min: 100 },
-];
+export interface ContagemPorTamanho {
+  id: string;
+  label: string;
+  unidades: number;
+  pedidos: number;
+}
+
+export interface Estatisticas {
+  totalUnidades: number;
+  totalArtigos: number;
+  porCategoria: ContagemPorCategoria[];
+  roupaPorTamanho: ContagemPorTamanho[];
+  roupaSemTamanho: { unidades: number; pedidos: number };
+}
 
 export const PRIORIDADES: { valor: number; label: string }[] = [
   { valor: 1, label: '1 — Baixa' },
