@@ -8,7 +8,7 @@
     "dev": "concurrently -n server,client -c blue,magenta \"npm:dev:server\" \"npm:dev:client\"",
     "dev:server": "npm run dev --prefix server",
     "dev:client": "npm run dev --prefix client",
-    "build": "npm install --prefix client && npm run build --prefix client && npm install --prefix server && npm run prisma:generate --prefix server && npm run build --prefix server && npm run prisma:deploy --prefix server",
+    "build": "npm install --include=dev --prefix client && npm run build --prefix client && npm install --include=dev --prefix server && npm run prisma:generate --prefix server && npm run build --prefix server && npm run prisma:deploy --prefix server",
     "start": "npm run start --prefix server",
     "seed": "npm run seed --prefix server",
     "migrate": "npm run prisma:migrate --prefix server",

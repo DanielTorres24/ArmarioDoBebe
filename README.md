@@ -248,36 +248,80 @@ npm start           # serve API + frontend na mesma porta
 
 ## Deploy no Render
 
-### Opção A — Blueprint (recomendado)
+O plano gratuito do Render impõe duas limitações que o deploy tem de contornar:
+**só permite uma base de dados PostgreSQL por conta** e **não dá acesso à Shell**
+do serviço. Por isso o [`render.yaml`](render.yaml) não cria a base de dados, e o
+seed corre durante o build.
 
-1. Faz push para um repositório no GitHub.
-2. No Render: **New → Blueprint** e escolhe o repositório.
-3. O [`render.yaml`](render.yaml) cria o serviço web, a base de dados PostgreSQL, liga o
-   `DATABASE_URL` e **gera automaticamente o `JWT_SECRET`**.
-4. Antes de confirmar, preenche `ADMIN_EMAIL` e `ADMIN_PASSWORD` (estão marcados como `sync: false`,
-   ou seja, o Render pede-tos e nunca ficam no repositório).
-5. Depois do primeiro deploy, abre a **Shell** do serviço e corre uma vez:
+### 1. A base de dados
 
-   ```bash
-   npm run seed
-   ```
+O blueprint não a cria. Escolhe um dos caminhos:
 
-   Isto cria a conta dos pais e os dados iniciais. Já podes entrar em `/admin`.
+- **Ainda não tens nenhuma base de dados gratuita** — no Render, **New → Postgres**,
+  região *Frankfurt* (a mesma do serviço web), plano *Free*.
+- **Já tens uma base de dados gratuita noutro projeto** — podes partilhá-la sem
+  misturar os dados, acrescentando um schema só para este site no fim da ligação:
 
-### Opção B — Manual
+  ```
+  postgresql://…/a_tua_base?schema=armario_diogo
+  ```
+
+  O Prisma cria esse schema no primeiro deploy e nunca toca no `public`.
+- **Preferes uma base de dados só para isto** — apaga ou faz upgrade da que já
+  tens, e cria uma nova. Confirma primeiro o que a outra guarda.
+
+Copia a ligação: **Internal Database URL** se a base de dados estiver na mesma
+região do serviço web, **External Database URL** se estiver noutra.
+
+### 2. O serviço web
+
+1. No Render: **New → Blueprint** e escolhe o repositório.
+2. O blueprint pede as variáveis marcadas como `sync: false`. Preenche:
+
+   | Variável | Valor |
+   | -------- | ----- |
+   | `DATABASE_URL` | a ligação do passo 1 |
+   | `ADMIN_EMAIL` | o utilizador dos pais (ex.: `admin`) |
+   | `ADMIN_PASSWORD` | **uma palavra-passe forte** — o site fica público |
+   | `ADMIN_NAME` | ex.: `Pais do Diogo` |
+
+   O `JWT_SECRET` é gerado pelo Render e nunca passa pelo repositório.
+3. Confirma. O build corre `npm run build && npm run seed`: compila, aplica as
+   migrações, cria as categorias e a conta dos pais.
+
+Depois do deploy, a área dos pais está em `/admin`.
+
+### Porque é que o seed corre no build
+
+Sem Shell no plano gratuito, não há outra altura para o correr. O seed é
+idempotente: pode correr em todos os deploys sem duplicar nada, e **nunca altera
+a palavra-passe de um administrador que já exista** — para a mudar, apaga a linha
+em `admin_users` e faz um novo deploy.
+
+### Deploy manual, sem blueprint
 
 | Definição | Valor |
 | --------- | ----- |
 | Runtime | Node |
-| Build Command | `npm run build` |
+| Build Command | `npm run build && npm run seed` |
 | Start Command | `npm start` |
 | Health Check Path | `/api/health` |
 
-Variáveis: `DATABASE_URL` (Internal Database URL do PostgreSQL do Render), `NODE_ENV=production`,
-`JWT_SECRET` (valor aleatório), `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `CORS_ORIGIN` vazio. O `PORT` é
-definido pelo Render.
+Variáveis: `DATABASE_URL`, `NODE_ENV=production`, `NODE_VERSION=22`, `JWT_SECRET`
+(valor aleatório longo), `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_NAME`, e
+`CORS_ORIGIN` vazio. O `PORT` é definido pelo Render.
 
-As migrações correm sozinhas durante o build (`prisma migrate deploy`).
+### Se o deploy falhar
+
+| Mensagem | Causa |
+| -------- | ----- |
+| `cannot have more than one active free tier database` | O blueprint estava a declarar uma base de dados e já tens uma gratuita. Já não declara — atualiza o repositório. |
+| `tsc: not found`, `vite: not found` | As devDependencies não foram instaladas. O `npm run build` já força `--include=dev`, necessário porque `NODE_ENV=production` faz o npm saltá-las. |
+| `Can't reach database server` | A ligação está errada, ou estás a usar a *Internal* URL com a base de dados noutra região. |
+| `no equivalent in encoding "WIN1252"` | A base de dados não está em UTF8. As do Render estão sempre; num PostgreSQL local, ver a nota no `.env.example`. |
+
+O primeiro pedido a um serviço gratuito pode demorar cerca de um minuto: o Render
+suspende-o depois de algum tempo sem tráfego.
 
 ---
 

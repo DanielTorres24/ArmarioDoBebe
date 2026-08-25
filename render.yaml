@@ -1,23 +1,40 @@
-# Blueprint do Render: um servico web (API + frontend) e uma base de dados PostgreSQL.
-# No Render: New > Blueprint > aponta para o repositorio e confirma.
+# Blueprint do Render: um unico servico web que serve a API e o frontend.
+#
+# A base de dados NAO e criada aqui de proposito. O plano gratuito do Render
+# so permite uma base de dados PostgreSQL por conta; declarar outra faz o
+# blueprint falhar com "cannot have more than one active free tier database"
+# e cancela a criacao do servico web. Cria (ou reaproveita) a base de dados a
+# mao e cola a ligacao em DATABASE_URL. Ver o README, seccao "Deploy no Render".
 services:
   - type: web
     name: armario-do-diogo
     runtime: node
     plan: free
     region: frankfurt
-    buildCommand: npm run build
+
+    # O seed corre no build porque o plano gratuito nao da acesso a Shell,
+    # e sem ele nao havia forma de criar as categorias nem o administrador.
+    # E idempotente: pode correr em todos os deploys sem duplicar nada e
+    # nunca altera a palavra-passe de um administrador que ja exista.
+    buildCommand: npm run build && npm run seed
     startCommand: npm start
     healthCheckPath: /api/health
     autoDeploy: true
+
     envVars:
       - key: NODE_ENV
         value: production
 
+      - key: NODE_VERSION
+        value: 22
+
+      # Cola aqui a ligacao a base de dados, no painel do Render.
+      # Mesma regiao do servico -> usa a "Internal Database URL".
+      # Regiao diferente -> tem de ser a "External Database URL".
+      # A partilhar a base de dados com outra aplicacao, acrescenta um schema
+      # so para este site:  ...?schema=armario_diogo
       - key: DATABASE_URL
-        fromDatabase:
-          name: armario-do-diogo-db
-          property: connectionString
+        sync: false
 
       # Gerado pelo Render e nunca visivel no codigo.
       - key: JWT_SECRET
@@ -30,17 +47,11 @@ services:
       - key: CORS_ORIGIN
         value: ''
 
-      # Preenche estes dois no painel do Render antes do primeiro deploy;
-      # servem para o `npm run seed` criar o administrador.
+      # Preenche os tres no painel antes do primeiro deploy: e o build que
+      # cria o administrador a partir deles.
       - key: ADMIN_EMAIL
         sync: false
       - key: ADMIN_PASSWORD
         sync: false
       - key: ADMIN_NAME
         sync: false
-
-databases:
-  - name: armario-do-diogo-db
-    databaseName: armario_diogo
-    plan: free
-    region: frankfurt
