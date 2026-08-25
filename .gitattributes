@@ -1,0 +1,3 @@
+# O deploy e Linux: normaliza para LF e evita ruido de CRLF nos diffs.
+* text=auto eol=lf
+*.png binary

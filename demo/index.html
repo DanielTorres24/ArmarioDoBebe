@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#8fc4e8" />
+  <title>O Armário do Diogo 💙</title>
+
+  <style>
+    :root {
+      --azul-50: #f7fbfe;
+      --azul-100: #eaf5fc;
+      --azul-200: #d3e9f7;
+      --azul-400: #8fc4e8;
+      --azul-500: #6da9d6;
+      --azul-600: #4f8dbd;
+      --azul-700: #3d7099;
+      --azul-900: #234b66;
+
+      --tinta: #2f3d4a;
+      --tinta-suave: #6b7885;
+      --borda: #e3edf3;
+
+      --verde: #2f7d55;
+      --verde-fundo: #eaf7f0;
+      --ambar: #9c6206;
+      --ambar-fundo: #fdf4e5;
+      --amarelo: #8a6d1f;
+      --amarelo-fundo: #fbf6e6;
+      --rosa: #a8474a;
+      --rosa-fundo: #fdf0f0;
+
+      --grafico: #3b7fb5;
+
+      --sombra: 0 10px 30px rgba(40, 80, 100, 0.07);
+      --raio: 20px;
+      --seguro: env(safe-area-inset-bottom, 0px);
+    }
+
+    * { box-sizing: border-box; min-width: 0; }
+
+    html { -webkit-text-size-adjust: 100%; }
+
+    body {
+      margin: 0;
+      /* 16px evita o zoom automático do iOS ao focar um campo. */
+      font: 16px/1.5 'Nunito', 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+      background: var(--azul-50);
+      color: var(--tinta);
+    }
+
+    h1, h2, h3 { margin: 0; line-height: 1.2; overflow-wrap: break-word; }
+    p { margin: 0; }
+    button { font: inherit; border: none; cursor: pointer; }
+
+    :focus-visible { outline: 3px solid var(--azul-600); outline-offset: 2px; border-radius: 8px; }
+
+    .oculto-visualmente {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+    }
+
+    /* ------------------------------- Cabeçalho ------------------------------ */
+
+    .hero {
+      background: linear-gradient(135deg, var(--azul-400), var(--azul-100));
+      padding: clamp(26px, 6vw, 44px) clamp(14px, 4vw, 24px) clamp(38px, 8vw, 58px);
+      text-align: center;
+    }
+
+    .hero img {
+      display: block;
+      width: clamp(66px, 18vw, 92px);
+      height: clamp(66px, 18vw, 92px);
+      margin: 0 auto 12px;
+      padding: 8px;
+      background: #fff;
+      border-radius: 50%;
+      object-fit: contain;
+      box-shadow: 0 10px 30px rgba(80, 140, 180, 0.18);
+    }
+
+    .hero h1 {
+      font-size: clamp(1.6rem, 6.5vw, 3rem);
+      font-weight: 800;
+      color: var(--azul-900);
+      text-wrap: balance;
+    }
+
+    .hero p {
+      max-width: 46ch;
+      margin: 10px auto 0;
+      color: #35586d;
+      font-size: clamp(0.92rem, 3.3vw, 1.05rem);
+    }
+
+    .aviso-demo {
+      max-width: 46ch;
+      margin: 14px auto 0;
+      padding: 8px 14px;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 12px;
+      font-size: 0.8rem;
+      color: #486d82;
+    }
+
+    /* --------------------------------- Layout ------------------------------- */
+
+    main {
+      width: min(1080px, 100%);
+      margin: clamp(-30px, -5vw, -20px) auto 40px;
+      padding: 0 clamp(10px, 3vw, 16px);
+    }
+
+    section { margin-bottom: clamp(20px, 5vw, 32px); }
+
+    .cartao {
+      background: #fff;
+      border: 1px solid var(--borda);
+      border-radius: var(--raio);
+      box-shadow: var(--sombra);
+    }
+
+    .titulo-seccao { margin-bottom: 4px; font-size: clamp(1.15rem, 4.5vw, 1.45rem); }
+    .sub-seccao { margin-bottom: 14px; color: var(--tinta-suave); font-size: 0.9rem; }
+
+    /* ------------------------------ Verificador ----------------------------- */
+
+    .verificador { padding: clamp(16px, 4vw, 24px); }
+
+    .campo-pesquisa { position: relative; }
+
+    .campo-pesquisa > span {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      pointer-events: none; font-size: 1.1rem;
+    }
+
+    .campo-pesquisa input {
+      width: 100%;
+      min-height: 52px;
+      padding: 12px 14px 12px 46px;
+      border: 2px solid var(--azul-200);
+      border-radius: 14px;
+      font: inherit;
+      color: var(--tinta);
+      background: #fff;
+      outline: none;
+    }
+
+    .campo-pesquisa input:focus {
+      border-color: var(--azul-500);
+      box-shadow: 0 0 0 4px rgba(109, 169, 214, 0.2);
+    }
+
+    .sugestoes-rapidas {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; align-items: center;
+    }
+
+    .sugestoes-rapidas > span { font-size: 0.82rem; color: var(--tinta-suave); }
+
+    .atalho {
+      min-height: 38px;
+      padding: 7px 13px;
+      border: 1px solid var(--borda);
+      border-radius: 999px;
+      background: #fff;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--tinta);
+    }
+
+    .atalho:hover { background: var(--azul-50); }
+
+    /* Veredito: a resposta à pergunta "já tem muitos disto?" */
+    .veredito {
+      display: flex; gap: 14px; align-items: flex-start;
+      margin-top: 16px; padding: 16px;
+      border-radius: 16px;
+      border: 1px solid transparent;
+    }
+
+    .veredito .emoji { font-size: 1.8rem; line-height: 1; flex: none; }
+    .veredito h3 { font-size: 1.05rem; margin-bottom: 4px; }
+    .veredito p { font-size: 0.9rem; }
+
+    .veredito.tem-muitos { background: var(--rosa-fundo); border-color: #f3d5d5; color: var(--rosa); }
+    .veredito.tem-alguns { background: var(--amarelo-fundo); border-color: #efe4c2; color: var(--amarelo); }
+    .veredito.tem-poucos { background: var(--ambar-fundo); border-color: #f0e0c2; color: var(--ambar); }
+    .veredito.faz-falta  { background: var(--verde-fundo); border-color: #cfe9dd; color: var(--verde); }
+    .veredito.pedido     { background: var(--ambar-fundo); border-color: #f0e0c2; color: var(--ambar); }
+
+    .correspondencias { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+
+    .correspondencia {
+      display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center;
+      padding: 10px 12px;
+      background: var(--azul-50);
+      border-radius: 12px;
+      font-size: 0.9rem;
+    }
+
+    .correspondencia .nome { font-weight: 700; flex: 1; min-width: 110px; }
+
+    /* ------------------------------- Categorias ----------------------------- */
+
+    .grelha-categorias {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(168px, 100%), 1fr));
+      gap: 10px;
+    }
+
+    .categoria {
+      display: flex; flex-direction: column; gap: 6px; align-items: flex-start;
+      padding: 14px;
+      text-align: left;
+      background: #fff;
+      border: 1px solid var(--borda);
+      border-radius: 16px;
+      box-shadow: var(--sombra);
+      transition: border-color .15s, transform .15s;
+    }
+
+    .categoria:hover { border-color: var(--azul-400); transform: translateY(-1px); }
+
+    .categoria[aria-pressed="true"] {
+      border-color: var(--azul-500);
+      box-shadow: 0 0 0 3px rgba(109, 169, 214, 0.25);
+    }
+
+    .categoria .topo { display: flex; align-items: center; gap: 9px; }
+    .categoria .icone { font-size: 1.5rem; line-height: 1; }
+    .categoria .nome { font-weight: 800; font-size: 0.95rem; }
+    .categoria .contagem { font-size: 0.82rem; color: var(--tinta-suave); }
+
+    .medidor {
+      width: 100%;
+      height: 8px;
+      background: var(--azul-100);
+      border-radius: 0 4px 4px 0;
+      overflow: hidden;
+    }
+
+    .medidor i { display: block; height: 100%; background: var(--grafico); border-radius: 0 4px 4px 0; }
+
+    .selo {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 800;
+    }
+
+    .selo.muitos  { background: var(--rosa-fundo); color: var(--rosa); }
+    .selo.alguns  { background: var(--amarelo-fundo); color: var(--amarelo); }
+    .selo.poucos  { background: var(--ambar-fundo); color: var(--ambar); }
+    .selo.nenhuns { background: var(--verde-fundo); color: var(--verde); }
+    .selo.pedido  { background: var(--ambar-fundo); color: var(--ambar); }
+
+    /* -------------------------------- Tamanhos ------------------------------ */
+
+    .tamanhos { padding: clamp(16px, 4vw, 24px); }
+
+    .lista-tamanhos { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+
+    .linha-tamanho {
+      display: grid;
+      grid-template-columns: minmax(84px, 26%) 1fr auto;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      min-height: 44px;
+      padding: 9px 10px;
+      background: none;
+      border-radius: 12px;
+      text-align: left;
+      color: inherit;
+    }
+
+    .linha-tamanho:hover { background: var(--azul-50); }
+    .linha-tamanho[aria-pressed="true"] { background: var(--azul-100); }
+
+    .linha-tamanho .rotulo { font-size: 0.88rem; font-weight: 700; }
+
+    .linha-tamanho .valor {
+      display: flex; align-items: baseline; gap: 6px;
+      font-size: 0.85rem; font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .linha-tamanho .valor small { font-weight: 700; font-size: 0.74rem; color: var(--tinta-suave); }
+
+    @media (max-width: 420px) {
+      .linha-tamanho { grid-template-columns: 1fr auto; gap: 4px 10px; }
+      .linha-tamanho .rotulo { grid-column: 1; }
+      .linha-tamanho .valor { grid-column: 2; grid-row: 1; }
+      .linha-tamanho .medidor { grid-column: 1 / -1; }
+    }
+
+    /* --------------------------------- Lista -------------------------------- */
+
+    .cabecalho-lista {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      gap: 10px; margin-bottom: 14px;
+    }
+
+    .cabecalho-lista h2 { margin-bottom: 0; }
+
+    .botao-limpar {
+      min-height: 40px;
+      padding: 9px 14px;
+      border-radius: 12px;
+      background: var(--azul-100);
+      color: var(--azul-700);
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    .grelha-artigos {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(250px, 100%), 1fr));
+      gap: 12px;
+    }
+
+    .artigo { display: flex; flex-direction: column; padding: 16px; }
+
+    .artigo .topo {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 10px; margin-bottom: 10px;
+    }
+
+    .artigo .icone {
+      display: grid; place-items: center;
+      width: 44px; height: 44px; flex: none;
+      background: var(--azul-100);
+      border-radius: 14px;
+      font-size: 1.4rem;
+    }
+
+    .artigo h3 { font-size: 1.02rem; margin-bottom: 8px; overflow-wrap: anywhere; }
+
+    .etiquetas { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    .etiqueta {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--azul-100);
+      color: var(--azul-700);
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
+
+    .etiqueta.cinza { background: #f2f5f7; color: var(--tinta-suave); }
+
+    .artigo .descricao { margin-top: 10px; font-size: 0.88rem; color: var(--tinta-suave); overflow-wrap: anywhere; }
+
+    .quantidade { white-space: nowrap; }
+    .quantidade small { font-weight: 700; font-size: 0.72rem; opacity: .85; }
+
+    .estado-vazio { padding: 34px 20px; text-align: center; color: var(--tinta-suave); }
+    .estado-vazio strong { display: block; margin-bottom: 6px; color: var(--tinta); font-size: 1.05rem; }
+
+    /* -------------------------------- Legenda ------------------------------- */
+
+    .legenda { padding: clamp(14px, 3.5vw, 20px); }
+    .legenda ul { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 10px; }
+
+    @media (min-width: 620px) { .legenda ul { grid-template-columns: 1fr 1fr; } }
+
+    .legenda li { display: flex; align-items: center; gap: 10px; font-size: 0.86rem; color: var(--tinta-suave); }
+    .legenda .selo { flex: none; }
+
+    footer {
+      padding: 22px 16px calc(30px + var(--seguro));
+      text-align: center;
+      color: var(--tinta-suave);
+      font-size: 0.86rem;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="hero">
+    <img src="data:image/jpeg;base64,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" alt="" width="92" height="92" />
+    <h1>O Armário do Diogo 💙</h1>
+    <p>
+      Antes de escolheres uma prenda, vê aqui o que o Diogo já tem — e em que quantidade.
+      Assim ninguém repete e cada mimo conta.
+    </p>
+    <p class="aviso-demo">Demonstração: os dados são de exemplo e nada fica guardado.</p>
+  </header>
+
+  <main>
+
+    <!-- ====================== O verificador de prendas ====================== -->
+    <section class="cartao verificador" aria-labelledby="t-verificador">
+      <h2 class="titulo-seccao" id="t-verificador">🔎 Estás a pensar oferecer alguma coisa?</h2>
+      <p class="sub-seccao">Escreve o que tens em mente e dizemos-te logo se o Diogo já tem muitos.</p>
+
+      <div class="campo-pesquisa">
+        <span aria-hidden="true">🔍</span>
+        <label class="oculto-visualmente" for="pesquisa">O que estás a pensar oferecer?</label>
+        <input type="search" id="pesquisa" autocomplete="off" placeholder="Ex.: body, manta, livro, chucha..." />
+      </div>
+
+      <div class="sugestoes-rapidas">
+        <span>Experimenta:</span>
+        <button type="button" class="atalho" data-termo="body">body</button>
+        <button type="button" class="atalho" data-termo="meias">meias</button>
+        <button type="button" class="atalho" data-termo="peluche">peluche</button>
+        <button type="button" class="atalho" data-termo="livro">livro</button>
+        <button type="button" class="atalho" data-termo="tapete">tapete</button>
+      </div>
+
+      <div id="veredito" role="status" aria-live="polite"></div>
+      <div class="correspondencias" id="correspondencias"></div>
+    </section>
+
+    <!-- =========================== As categorias =========================== -->
+    <section aria-labelledby="t-categorias">
+      <h2 class="titulo-seccao" id="t-categorias">📂 Todas as categorias</h2>
+      <p class="sub-seccao">A barra mostra quanto o Diogo já tem em cada uma. Toca para veres o que lá está.</p>
+      <div class="grelha-categorias" id="categorias"></div>
+    </section>
+
+    <!-- ========================= A roupa por tamanho ======================== -->
+    <section class="cartao tamanhos" aria-labelledby="t-tamanhos">
+      <h2 class="titulo-seccao" id="t-tamanhos">👕 Roupa por tamanho</h2>
+      <p class="sub-seccao">É em roupa que as prendas mais se repetem. Toca num tamanho para veres o que já existe.</p>
+      <ul class="lista-tamanhos" id="tamanhos"></ul>
+    </section>
+
+    <!-- ============================== A lista ============================== -->
+    <section aria-labelledby="t-lista">
+      <div class="cabecalho-lista">
+        <h2 class="titulo-seccao" id="t-lista">📦 Tudo o que o Diogo já tem</h2>
+        <button type="button" class="botao-limpar" id="limpar" hidden>✕ Limpar filtro</button>
+      </div>
+      <div class="grelha-artigos" id="artigos" aria-live="polite"></div>
+    </section>
+
+    <!-- ============================== Legenda ============================== -->
+    <section class="cartao legenda" aria-labelledby="t-legenda">
+      <h2 class="titulo-seccao" id="t-legenda" style="font-size: 1.05rem">Como ler os sinais</h2>
+      <ul>
+        <li><span class="selo nenhuns">🟢 Faz falta</span> ainda não há nada — boa ideia de prenda</li>
+        <li><span class="selo pedido">⭐ Pedido dos pais</span> foi mesmo pedido, é o que dá mais jeito</li>
+        <li><span class="selo poucos">🟠 Tem pouco</span> há uma ou duas — ainda cabe mais</li>
+        <li><span class="selo alguns">🟡 Tem alguns</span> já há uns quantos, pensa duas vezes</li>
+        <li><span class="selo muitos">🔴 Já tem bastante</span> escolhe outra coisa</li>
+      </ul>
+    </section>
+
+  </main>
+
+  <footer>Feito com carinho para o pequeno Diogo 💙👶</footer>
+
+  <script>
+    // ===================================================================
+    // Dados de exemplo. Na aplicação real vêm da base de dados e os pais
+    // controlam-nos a partir da área de administração.
+    // ===================================================================
+
+    const CATEGORIAS = [
+      { id: 'roupas',      nome: 'Roupas',                icone: '👕' },
+      { id: 'alimentacao', nome: 'Alimentação',           icone: '🍼' },
+      { id: 'higiene',     nome: 'Higiene e cuidados',    icone: '🛁' },
+      { id: 'quarto',      nome: 'Quarto e sono',         icone: '🛏️' },
+      { id: 'brinquedos',  nome: 'Brinquedos',            icone: '🧸' },
+      { id: 'passeios',    nome: 'Passeios e transporte', icone: '🚗' },
+      { id: 'livros',      nome: 'Livros',                icone: '📚' },
+      { id: 'outros',      nome: 'Outros',                icone: '💙' },
+    ];
+
+    const TAMANHOS = [
+      { id: '0-3',  rotulo: '0-3 meses' },
+      { id: '3-6',  rotulo: '3-6 meses' },
+      { id: '6-9',  rotulo: '6-9 meses' },
+      { id: '9-12', rotulo: '9-12 meses' },
+      { id: '12+',  rotulo: '12+ meses' },
+    ];
+
+    // estado: OWNED (já temos) · SOME (temos alguns) · NEEDED (faz falta) · WANTED (muito desejado)
+    const ARTIGOS = [
+      { nome: 'Body branco',           cat: 'roupas',      tam: '0-3',  qtd: 6, estado: 'OWNED',  desc: 'De manga curta e comprida.' },
+      { nome: 'Conjunto de meias',     cat: 'roupas',      tam: '0-3',  qtd: 8, estado: 'OWNED',  desc: 'Vários pares — chegam e sobram.' },
+      { nome: 'Pijama',                cat: 'roupas',      tam: '3-6',  qtd: 3, estado: 'OWNED',  desc: null },
+      { nome: 'Camisola de lã',        cat: 'roupas',      tam: '3-6',  qtd: 2, estado: 'SOME',   desc: null },
+      { nome: 'Roupa para 6-9 meses',  cat: 'roupas',      tam: '6-9',  qtd: 0, estado: 'NEEDED', desc: 'Há muita roupa dos primeiros meses, mas nada para os 6-9.' },
+      { nome: 'Roupa para 9-12 meses', cat: 'roupas',      tam: '9-12', qtd: 0, estado: 'NEEDED', desc: null },
+      { nome: 'Biberão',               cat: 'alimentacao', tam: null,   qtd: 2, estado: 'OWNED',  desc: 'Anti-cólicas.' },
+      { nome: 'Babetes',               cat: 'alimentacao', tam: null,   qtd: 3, estado: 'SOME',   desc: 'Nunca são de mais.' },
+      { nome: 'Chuchas',               cat: 'alimentacao', tam: null,   qtd: 4, estado: 'SOME',   desc: null },
+      { nome: 'Toalha com capuz',      cat: 'higiene',     tam: null,   qtd: 2, estado: 'OWNED',  desc: null },
+      { nome: 'Termómetro',            cat: 'higiene',     tam: null,   qtd: 0, estado: 'NEEDED', desc: 'Ainda não temos nenhum.' },
+      { nome: 'Manta',                 cat: 'quarto',      tam: null,   qtd: 2, estado: 'OWNED',  desc: 'Algodão suave.' },
+      { nome: 'Luz de presença',       cat: 'quarto',      tam: null,   qtd: 0, estado: 'WANTED', desc: 'Para as mudas de fralda a meio da noite.' },
+      { nome: 'Peluches',              cat: 'brinquedos',  tam: null,   qtd: 5, estado: 'SOME',   desc: 'Já temos bastantes — obrigado! 😊' },
+      { nome: 'Tapete de atividades',  cat: 'brinquedos',  tam: null,   qtd: 0, estado: 'WANTED', desc: 'Seria perfeito para os primeiros meses no chão.' },
+      { nome: 'Mochila de bebé',       cat: 'passeios',    tam: null,   qtd: 0, estado: 'WANTED', desc: null },
+      { nome: 'Livros para bebé',      cat: 'livros',      tam: null,   qtd: 1, estado: 'NEEDED', desc: 'De pano ou de cartão, para morder e virar páginas.' },
+      { nome: 'Álbum de fotografias',  cat: 'outros',      tam: null,   qtd: 1, estado: 'OWNED',  desc: null },
+    ];
+
+    // ===================================================================
+    // As regras dos sinais — a resposta a "já tem muitos disto?"
+    // ===================================================================
+
+    /** Um artigo pedido pelos pais ganha a qualquer contagem. */
+    const ehPedido = (artigo) => artigo.estado === 'NEEDED' || artigo.estado === 'WANTED';
+
+    /** Traduz um número de unidades num sinal com cor e palavras. */
+    function sinalDeQuantidade(unidades) {
+      if (unidades === 0) return { classe: 'nenhuns', emoji: '🟢', texto: 'Faz falta' };
+      if (unidades <= 2)  return { classe: 'poucos',  emoji: '🟠', texto: 'Tem pouco' };
+      if (unidades <= 5)  return { classe: 'alguns',  emoji: '🟡', texto: 'Tem alguns' };
+      return { classe: 'muitos', emoji: '🔴', texto: 'Já tem bastante' };
+    }
+
+    const SINAL_PEDIDO = { classe: 'pedido', emoji: '⭐', texto: 'Pedido dos pais' };
+
+    const sinalDe = (artigo) => (ehPedido(artigo) ? SINAL_PEDIDO : sinalDeQuantidade(artigo.qtd));
+
+    const semAcentos = (texto) =>
+      texto.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+
+    const plural = (n, singular, plural_) => n + ' ' + (n === 1 ? singular : plural_);
+
+    const categoriaDe = (id) => CATEGORIAS.find((c) => c.id === id);
+    const tamanhoDe = (id) => TAMANHOS.find((t) => t.id === id);
+    const unidadesDe = (artigos) => artigos.reduce((total, artigo) => total + artigo.qtd, 0);
+
+    // ===================================================================
+    // Desenhar a página
+    // ===================================================================
+
+    const $ = (id) => document.getElementById(id);
+
+    /** Filtro atual: { tipo: 'cat' | 'tam', valor } ou null. */
+    let filtro = null;
+
+    /** Cria um elemento. Usa sempre textContent — nada do que o utilizador
+     *  escreve é alguma vez interpretado como HTML. */
+    function criar(tag, classe, texto) {
+      const el = document.createElement(tag);
+      if (classe) el.className = classe;
+      if (texto !== undefined && texto !== null) el.textContent = texto;
+      return el;
+    }
+
+    function medidor(valor, maximo) {
+      const caixa = criar('span', 'medidor');
+      caixa.setAttribute('aria-hidden', 'true');
+      const barra = criar('i');
+      barra.style.width = valor === 0 ? '0%' : Math.max(6, (valor / maximo) * 100) + '%';
+      caixa.append(barra);
+      return caixa;
+    }
+
+    function alternarFiltro(tipo, valor) {
+      const jaEstava = filtro && filtro.tipo === tipo && filtro.valor === valor;
+      filtro = jaEstava ? null : { tipo, valor };
+      atualizar();
+      $('t-lista').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    /* ------------------------------ Categorias ----------------------------- */
+
+    function desenharCategorias() {
+      const destino = $('categorias');
+      destino.textContent = '';
+
+      const porCategoria = CATEGORIAS.map((categoria) => {
+        const artigos = ARTIGOS.filter((a) => a.cat === categoria.id);
+        return { categoria, artigos, unidades: unidadesDe(artigos), pedidos: artigos.filter(ehPedido).length };
+      });
+
+      const maximo = Math.max(1, ...porCategoria.map((linha) => linha.unidades));
+
+      for (const linha of porCategoria) {
+        const sinal = sinalDeQuantidade(linha.unidades);
+        const ativa = Boolean(filtro && filtro.tipo === 'cat' && filtro.valor === linha.categoria.id);
+
+        const botao = criar('button', 'categoria');
+        botao.type = 'button';
+        botao.setAttribute('aria-pressed', String(ativa));
+
+        const topo = criar('span', 'topo');
+        topo.append(criar('span', 'icone', linha.categoria.icone));
+        topo.append(criar('span', 'nome', linha.categoria.nome));
+        botao.append(topo);
+
+        botao.append(
+          criar(
+            'span',
+            'contagem',
+            linha.unidades === 0
+              ? 'ainda sem nada'
+              : plural(linha.unidades, 'peça', 'peças') + ' · ' + plural(linha.artigos.length, 'artigo', 'artigos'),
+          ),
+        );
+
+        botao.append(medidor(linha.unidades, maximo));
+        botao.append(criar('span', 'selo ' + sinal.classe, sinal.emoji + ' ' + sinal.texto));
+
+        if (linha.pedidos > 0) {
+          botao.append(
+            criar('span', 'selo pedido', '⭐ ' + plural(linha.pedidos, 'pedido dos pais', 'pedidos dos pais')),
+          );
+        }
+
+        botao.addEventListener('click', () => alternarFiltro('cat', linha.categoria.id));
+        destino.append(botao);
+      }
+    }
+
+    /* ------------------------------- Tamanhos ------------------------------ */
+
+    function desenharTamanhos() {
+      const destino = $('tamanhos');
+      destino.textContent = '';
+
+      const porTamanho = TAMANHOS.map((tamanho) => {
+        const artigos = ARTIGOS.filter((a) => a.tam === tamanho.id);
+        return { tamanho, artigos, unidades: unidadesDe(artigos) };
+      });
+
+      const maximo = Math.max(1, ...porTamanho.map((linha) => linha.unidades));
+
+      for (const linha of porTamanho) {
+        // Um tamanho vazio que os pais pediram é um pedido, não uma ausência.
+        const sinal =
+          linha.unidades === 0 && linha.artigos.some(ehPedido)
+            ? SINAL_PEDIDO
+            : sinalDeQuantidade(linha.unidades);
+
+        const ativa = Boolean(filtro && filtro.tipo === 'tam' && filtro.valor === linha.tamanho.id);
+
+        const botao = criar('button', 'linha-tamanho');
+        botao.type = 'button';
+        botao.setAttribute('aria-pressed', String(ativa));
+        botao.setAttribute(
+          'aria-label',
+          linha.tamanho.rotulo + ': ' + plural(linha.unidades, 'peça', 'peças') + ' — ' + sinal.texto,
+        );
+
+        botao.append(criar('span', 'rotulo', linha.tamanho.rotulo));
+        botao.append(medidor(linha.unidades, maximo));
+
+        const valor = criar('span', 'valor');
+        valor.setAttribute('aria-hidden', 'true');
+        valor.append(criar('span', null, String(linha.unidades)));
+        valor.append(criar('small', null, sinal.emoji + ' ' + sinal.texto));
+        botao.append(valor);
+
+        botao.addEventListener('click', () => alternarFiltro('tam', linha.tamanho.id));
+
+        const item = criar('li');
+        item.append(botao);
+        destino.append(item);
+      }
+    }
+
+    /* --------------------------- Cartão de artigo -------------------------- */
+
+    function cartaoDeArtigo(artigo) {
+      const categoria = categoriaDe(artigo.cat);
+      const sinal = sinalDe(artigo);
+
+      const cartao = criar('article', 'cartao artigo');
+
+      const topo = criar('div', 'topo');
+      topo.append(criar('span', 'icone', categoria.icone));
+
+      const quantidade = criar('span', 'selo quantidade ' + sinal.classe);
+      if (artigo.qtd > 0) {
+        quantidade.append(criar('span', null, artigo.qtd + '×'));
+        quantidade.append(criar('small', null, sinal.texto));
+      } else {
+        quantidade.append(criar('span', null, sinal.emoji + ' ' + sinal.texto));
+      }
+      topo.append(quantidade);
+      cartao.append(topo);
+
+      cartao.append(criar('h3', null, artigo.nome));
+
+      const etiquetas = criar('div', 'etiquetas');
+      etiquetas.append(criar('span', 'etiqueta', categoria.nome));
+      if (artigo.tam) etiquetas.append(criar('span', 'etiqueta cinza', tamanhoDe(artigo.tam).rotulo));
+      cartao.append(etiquetas);
+
+      if (artigo.desc) cartao.append(criar('p', 'descricao', artigo.desc));
+
+      return cartao;
+    }
+
+    /* --------------------------------- Lista ------------------------------- */
+
+    function desenharLista() {
+      const destino = $('artigos');
+      destino.textContent = '';
+
+      let artigos = ARTIGOS;
+      let titulo = '📦 Tudo o que o Diogo já tem';
+
+      if (filtro && filtro.tipo === 'cat') {
+        const categoria = categoriaDe(filtro.valor);
+        artigos = ARTIGOS.filter((a) => a.cat === filtro.valor);
+        titulo = categoria.icone + ' ' + categoria.nome;
+      } else if (filtro && filtro.tipo === 'tam') {
+        artigos = ARTIGOS.filter((a) => a.tam === filtro.valor);
+        titulo = '👕 Roupa de ' + tamanhoDe(filtro.valor).rotulo;
+      }
+
+      $('t-lista').textContent = titulo;
+      $('limpar').hidden = filtro === null;
+
+      if (artigos.length === 0) {
+        const vazio = criar('div', 'cartao estado-vazio');
+        vazio.append(criar('strong', null, 'Ainda não há nada aqui'));
+        vazio.append(criar('span', null, 'É por isso mesmo que seria uma boa prenda. 💙'));
+        destino.append(vazio);
+        return;
+      }
+
+      // Primeiro o que faz falta, depois o que já existe em maior número.
+      const ordenados = artigos
+        .slice()
+        .sort((a, b) => Number(ehPedido(b)) - Number(ehPedido(a)) || b.qtd - a.qtd);
+
+      for (const artigo of ordenados) destino.append(cartaoDeArtigo(artigo));
+    }
+
+    /* ------------------------------ Verificador ---------------------------- */
+
+    function verificar(termo) {
+      const veredito = $('veredito');
+      const correspondencias = $('correspondencias');
+      veredito.textContent = '';
+      veredito.className = '';
+      correspondencias.textContent = '';
+
+      const procurado = semAcentos(termo);
+      if (procurado.length < 2) return;
+
+      const encontrados = ARTIGOS.filter((artigo) => {
+        const alvo = semAcentos(
+          artigo.nome + ' ' + (artigo.desc || '') + ' ' + categoriaDe(artigo.cat).nome,
+        );
+        return alvo.includes(procurado);
+      });
+
+      const unidades = unidadesDe(encontrados);
+      const pedidos = encontrados.filter(ehPedido);
+
+      let classe, emoji, titulo, explicacao;
+
+      if (encontrados.length === 0) {
+        classe = 'faz-falta';
+        emoji = '✅';
+        titulo = 'Não encontrámos nada parecido';
+        explicacao = 'O Diogo não tem nada assim no armário — é provável que faça falta. Boa escolha!';
+      } else if (pedidos.length > 0 && unidades === 0) {
+        classe = 'pedido';
+        emoji = '⭐';
+        titulo = 'Isto foi mesmo pedido pelos pais';
+        explicacao = 'Está na lista do que faz falta. É das melhores prendas que podes dar.';
+      } else if (unidades === 0) {
+        classe = 'faz-falta';
+        emoji = '🟢';
+        titulo = 'Ainda não tem nenhum';
+        explicacao = 'Está no armário como algo em falta — podes avançar sem receio.';
+      } else if (unidades <= 2) {
+        classe = 'tem-poucos';
+        emoji = '🟠';
+        titulo = 'Já tem ' + plural(unidades, 'unidade', 'unidades') + ', mas poucas';
+        explicacao = 'Ainda cabe mais um — sobretudo se for de outro tamanho ou modelo.';
+      } else if (unidades <= 5) {
+        classe = 'tem-alguns';
+        emoji = '🟡';
+        titulo = 'Já tem ' + plural(unidades, 'unidade', 'unidades');
+        explicacao = 'Não é de mais, mas talvez haja algo que dê mais jeito. Vê o que faz falta.';
+      } else {
+        classe = 'tem-muitos';
+        emoji = '🔴';
+        titulo = 'Já tem ' + plural(unidades, 'unidade', 'unidades') + ' disto';
+        explicacao = 'Está bem servido — o melhor é escolheres outra coisa.';
+      }
+
+      veredito.className = 'veredito ' + classe;
+      veredito.append(criar('span', 'emoji', emoji));
+
+      const corpo = criar('div');
+      corpo.append(criar('h3', null, titulo));
+      corpo.append(criar('p', null, explicacao));
+      veredito.append(corpo);
+
+      for (const artigo of encontrados) {
+        const sinal = sinalDe(artigo);
+        const linha = criar('div', 'correspondencia');
+        linha.append(criar('span', null, categoriaDe(artigo.cat).icone));
+        linha.append(criar('span', 'nome', artigo.nome));
+        if (artigo.tam) linha.append(criar('span', 'etiqueta cinza', tamanhoDe(artigo.tam).rotulo));
+        linha.append(
+          criar(
+            'span',
+            'selo ' + sinal.classe,
+            (artigo.qtd > 0 ? artigo.qtd + '× · ' : '') + sinal.emoji + ' ' + sinal.texto,
+          ),
+        );
+        correspondencias.append(linha);
+      }
+    }
+
+    /* ------------------------------ Orquestração --------------------------- */
+
+    function atualizar() {
+      desenharCategorias();
+      desenharTamanhos();
+      desenharLista();
+    }
+
+    $('pesquisa').addEventListener('input', (evento) => verificar(evento.target.value));
+
+    for (const atalho of document.querySelectorAll('.atalho')) {
+      atalho.addEventListener('click', () => {
+        const termo = atalho.dataset.termo;
+        $('pesquisa').value = termo;
+        verificar(termo);
+        $('pesquisa').focus();
+      });
+    }
+
+    $('limpar').addEventListener('click', () => {
+      filtro = null;
+      atualizar();
+    });
+
+    atualizar();
+  </script>
+
+</body>
+</html>

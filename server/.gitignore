@@ -1,0 +1,5 @@
+# Ancorados na raiz do server: sem a barra inicial, "public/" tambem apanhava
+# server/src/routes/public/, deixando codigo de fora do repositorio.
+/dist/
+/public/
+.env

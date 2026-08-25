@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    /* 16px é o mínimo que evita o zoom automático do iOS ao focar um campo. */
+    @apply bg-azul-50 font-sans text-base text-tinta antialiased;
+  }
+
+  /* Sem contorno de foco não há navegação por teclado possível. */
+  :focus-visible {
+    @apply outline outline-2 outline-offset-2 outline-azul-600;
+  }
+
+  h1, h2, h3 {
+    @apply font-extrabold leading-tight;
+  }
+}
+
+@layer components {
+  .cartao {
+    @apply rounded-card border border-azul-100 bg-white shadow-suave;
+  }
+
+  .campo {
+    @apply min-h-[46px] w-full rounded-2xl border border-azul-100 bg-white px-4 py-2.5 text-base
+      text-tinta outline-none transition
+      focus:border-azul-500 focus:ring-4 focus:ring-azul-500/20
+      aria-[invalid=true]:border-estado-rosa;
+  }
+
+  .rotulo {
+    @apply mb-1.5 block text-sm font-bold text-tinta;
+  }
+
+  .erro-campo {
+    @apply mt-1.5 text-sm font-semibold text-estado-rosa;
+  }
+}
+
+@layer utilities {
+  /* Barra fixa inferior no telemóvel, respeitando o entalhe do ecrã. */
+  .pb-seguro {
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Tiras de navegação deslizáveis: sem barra visível, o gesto chega. */
+  .sem-barra {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .sem-barra::-webkit-scrollbar {
+    display: none;
+  }
+
+  .esqueleto {
+    background: linear-gradient(90deg, #eef3f7 25%, #f7fafc 50%, #eef3f7 75%);
+    background-size: 200% 100%;
+    @apply animate-brilho rounded-lg;
+  }
+}

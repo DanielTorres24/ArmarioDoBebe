@@ -1,0 +1,46 @@
+# Blueprint do Render: um servico web (API + frontend) e uma base de dados PostgreSQL.
+# No Render: New > Blueprint > aponta para o repositorio e confirma.
+services:
+  - type: web
+    name: armario-do-diogo
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      - key: DATABASE_URL
+        fromDatabase:
+          name: armario-do-diogo-db
+          property: connectionString
+
+      # Gerado pelo Render e nunca visivel no codigo.
+      - key: JWT_SECRET
+        generateValue: true
+
+      - key: JWT_EXPIRES_IN
+        value: 7d
+
+      # Frontend e API partilham o dominio, por isso nao e preciso CORS.
+      - key: CORS_ORIGIN
+        value: ''
+
+      # Preenche estes dois no painel do Render antes do primeiro deploy;
+      # servem para o `npm run seed` criar o administrador.
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ADMIN_NAME
+        sync: false
+
+databases:
+  - name: armario-do-diogo-db
+    databaseName: armario_diogo
+    plan: free
+    region: frankfurt
