@@ -47,6 +47,27 @@ aplicação. Testado: migrações e seed num schema vazio criam tudo do zero.
 Apaga a que já tens (**confirma primeiro o que ela guarda** — é irreversível) ou
 faz upgrade de uma delas para um plano pago. Depois segue o caminho A.
 
+### Qual é, exatamente, o valor a copiar
+
+Na página da base de dados, o Render mostra vários campos parecidos. **Só um serve.**
+
+| Campo no Render | Serve? |
+| --------------- | ------ |
+| **Internal Database URL** | **Sim** — é este, se a base de dados e o serviço estiverem na mesma região |
+| **External Database URL** | Sim, se estiverem em regiões diferentes |
+| PSQL Command | Não — é um comando de terminal, começa por `PGPASSWORD=` |
+| Hostname / Port / Database / Username | Não — são as peças soltas da ligação |
+
+O valor certo tem esta forma, tudo numa linha:
+
+```
+postgresql://utilizador:palavra-passe@servidor.frankfurt-postgres.render.com/nome_da_base
+```
+
+Ao colar no painel do Render, **não ponhas aspas à volta**. As aspas só fazem
+sentido dentro de um ficheiro `.env`; no painel passam a fazer parte do valor e a
+ligação deixa de funcionar.
+
 > **Internal ou External?** Usa a **Internal Database URL** se a base de dados
 > estiver na mesma região do serviço web (Frankfurt). Se estiver noutra região,
 > tem de ser a **External Database URL** — a interna não atravessa regiões.
@@ -119,7 +140,9 @@ duplicar nada, e **nunca altera a palavra-passe de um administrador que já exis
 | Mensagem | O que se passa |
 | -------- | -------------- |
 | `cannot have more than one active free tier database` | O blueprint está a tentar criar uma base de dados e já tens uma gratuita. Confirma que o `render.yaml` do repositório não tem secção `databases:` e **apaga o blueprint antigo** antes de repetir. |
-| `O build parou: faltam variaveis de ambiente` | Falta `DATABASE_URL` ou `JWT_SECRET` no painel. A mensagem diz qual. |
+| `O build parou: ha variaveis de ambiente por corrigir` | A mensagem diz qual e porquê, e mostra o que recebeu (sem a palavra-passe). Ver a secção "Qual é, exatamente, o valor a copiar". |
+| `DATABASE_URL: o valor esta entre aspas` | Tiraste a ligação de um `.env` com aspas. No painel do Render, cola-a sem aspas. |
+| `DATABASE_URL: colaste o "PSQL Command"` | Copiaste o campo errado da página da base de dados. Procura **Internal Database URL**. |
 | `tsc: not found`, `vite: not found` | As devDependencies não foram instaladas. O build já força `--include=dev`; confirma que estás no commit mais recente de `main`. |
 | `Can't reach database server` | Ligação errada, ou estás a usar a *Internal* URL com a base de dados noutra região. Tenta a *External*. |
 | `no equivalent in encoding "WIN1252"` | A base de dados não está em UTF8. As do Render estão sempre — isto só acontece num PostgreSQL local. |
