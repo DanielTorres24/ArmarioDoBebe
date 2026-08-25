@@ -32,15 +32,56 @@ de dados gratuita faz o blueprint inteiro falhar. Escolhe **um** destes caminhos
 
 ### B. Já tens uma base de dados gratuita noutro projeto
 
-Podes partilhá-la sem misturar os dados. Copia a ligação dessa base de dados e
-acrescenta-lhe um schema só para este site:
+Podes partilhá-la sem misturar os dados. **Não é preciso mudar nada no código** —
+o schema vai todo na ligação.
+
+Copia a **Internal Database URL** dessa base de dados e acrescenta-lhe `?schema=`
+no fim. Se a base de dados se chamar `quidiogo`, fica assim:
 
 ```
-postgresql://…/a_tua_base?schema=armario_diogo
+postgresql://utilizador:palavra-passe@dpg-….frankfurt-postgres.render.com/quidiogo?schema=armario_diogo
 ```
 
-O Prisma cria esse schema no primeiro deploy e nunca toca no `public` da outra
-aplicação. Testado: migrações e seed num schema vazio criam tudo do zero.
+Se a ligação já tiver um `?` (raro), usa `&schema=armario_diogo` em vez de `?`.
+
+O Prisma cria o schema `armario_diogo` no primeiro deploy e põe lá dentro tudo o
+que é nosso — tabelas, tipos e o próprio histórico de migrações. A outra aplicação
+continua no `public` e nunca se cruzam.
+
+#### Os dados entram em choque?
+
+Não. Um schema em PostgreSQL é um compartimento fechado: duas tabelas com o
+**mesmo nome** em schemas diferentes são tabelas diferentes, sem qualquer relação.
+
+Isto foi testado, e não deduzido. A simulação criou uma base de dados com outra
+aplicação já instalada no `public`, incluindo tabelas `items` e `categories` — de
+propósito, os mesmos nomes que os nossos — e instalou o Armário ao lado:
+
+| Verificação | Resultado |
+| ----------- | --------- |
+| As tabelas da outra aplicação | intactas |
+| Os dados da outra aplicação | intactos, linha a linha |
+| `items` a existir nos dois schemas | sem colisão |
+| As nossas tabelas no `public` | nenhuma |
+| Histórico de migrações do Prisma | no nosso schema, separado |
+| Tipos enum (`ItemStatus`, …) | no nosso schema |
+
+Depois disso, as 53 verificações da API correram contra essa base de dados
+partilhada — todas passaram, e os dados da outra aplicação continuaram intactos
+no fim.
+
+#### O que é mesmo partilhado
+
+O compartimento é estanque, mas a **máquina** é a mesma. As duas aplicações
+partilham:
+
+- **Espaço em disco.** Este site ocupa muito pouco (algumas centenas de linhas);
+  o que enche uma base de dados é a outra aplicação, não esta.
+- **Ligações simultâneas.** Se a outra aplicação já usa muitas, podes limitar as
+  nossas acrescentando `&connection_limit=5` ao fim da ligação.
+- **A validade da base de dados.** Bases de dados gratuitas no Render expiram — a
+  data está na página da base de dados. Quando essa expirar, **caem as duas
+  aplicações**, não só uma.
 
 ### C. Queres uma base de dados só para isto
 
