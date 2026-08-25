@@ -28,7 +28,7 @@ export default function Layout() {
       <header className="sticky top-0 z-30 border-b border-azul-100 bg-white/90 backdrop-blur">
         <div className="mx-auto flex max-w-conteudo items-center gap-3 px-3 py-2.5 sm:px-4">
           <Link to="/" className="flex shrink-0 items-center gap-2 font-extrabold text-azul-900">
-            <img src="/icons/principal.png" alt="" width={36} height={36} className="h-9 w-9 rounded-full object-cover" />
+            <img src="/icons/principal.png" alt="" width={36} height={36} className="h-9 w-9 object-contain" />
             <span className="hidden sm:inline">{settings?.siteName ?? 'Armário do Diogo'}</span>
           </Link>
 

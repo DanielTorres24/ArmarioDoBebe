@@ -239,7 +239,7 @@ export function EstadoVazio({
   return (
     <div className="cartao px-6 py-10 text-center">
       {imagem ? (
-        <img src={imagem} alt="" width={96} height={96} className="mx-auto mb-3 h-24 w-24 rounded-full object-cover" />
+        <img src={imagem} alt="" width={96} height={96} className="mx-auto mb-3 h-24 w-24 object-contain" />
       ) : (
         <span className="mb-2 block text-4xl" aria-hidden="true">
           {emoji ?? '🧸'}

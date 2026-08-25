@@ -42,7 +42,7 @@ export default function Login() {
             alt=""
             width={72}
             height={72}
-            className="mx-auto mb-3 h-16 w-16 rounded-full bg-white object-cover shadow-suave"
+            className="mx-auto mb-3 h-16 w-16 object-contain"
           />
           <h1 className="mb-1 text-center text-2xl">Área dos pais</h1>
           <p className="mb-6 text-center text-sm text-tinta-suave">
