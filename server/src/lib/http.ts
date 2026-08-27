@@ -1,5 +1,5 @@
 import type { NextFunction, Request, RequestHandler, Response } from 'express';
-import { ZodError, type ZodSchema } from 'zod';
+import { ZodError, type ZodSchema, type ZodTypeDef } from 'zod';
 
 /** Erro com codigo HTTP, para ser apanhado pelo middleware de erro. */
 export class HttpError extends Error {
@@ -22,8 +22,15 @@ export const asyncHandler =
     fn(req, res, next).catch(next);
   };
 
-/** Valida o corpo do pedido e devolve os dados ja convertidos. */
-export function validar<T>(schema: ZodSchema<T>, dados: unknown): T {
+/**
+ * Valida o corpo do pedido e devolve os dados ja convertidos.
+ * O tipo de entrada e independente do de saida, para os esquemas poderem
+ * transformar (por exemplo, receber "2026-11-11" e devolver uma Date).
+ */
+export function validar<Saida, Entrada = unknown>(
+  schema: ZodSchema<Saida, ZodTypeDef, Entrada>,
+  dados: unknown,
+): Saida {
   const resultado = schema.safeParse(dados);
   if (resultado.success) return resultado.data;
   throw new ZodError(resultado.error.issues);

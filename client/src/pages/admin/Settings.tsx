@@ -136,6 +136,22 @@ export default function Settings() {
         </Campo>
 
         <Campo
+          id="d-parto"
+          label="Data prevista para o nascimento"
+          dica="Serve para dizer em que estação do ano o bebé estará em cada tamanho de roupa."
+          erro={erros.dueDate}
+        >
+          <input
+            id="d-parto"
+            className="campo"
+            type="date"
+            value={form.dueDate ? form.dueDate.slice(0, 10) : ''}
+            onChange={texto('dueDate')}
+            aria-invalid={!!erros.dueDate}
+          />
+        </Campo>
+
+        <Campo
           id="d-nota"
           label="Nota sobre prendas"
           dica="Aparece na página inicial, no armário e nas sugestões. Deixa vazio para não mostrar nada."

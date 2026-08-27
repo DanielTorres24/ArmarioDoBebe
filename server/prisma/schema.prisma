@@ -54,6 +54,7 @@ model SiteSettings {
   preferencesIntro   String?            @map("preferences_intro") @db.VarChar(600)
   footerText         String             @map("footer_text") @db.VarChar(200)
   giftNote           String             @default("") @map("gift_note") @db.VarChar(400)
+  dueDate            DateTime?          @map("due_date") @db.Date
   reservationEnabled Boolean            @default(true) @map("reservation_enabled")
   allowThinking      Boolean            @default(true) @map("allow_thinking")
   allowCancellation  Boolean            @default(true) @map("allow_cancellation")
@@ -102,6 +103,9 @@ model AgeRange {
   id        String   @id @default(uuid())
   label     String   @db.VarChar(40)
   slug      String   @unique @db.VarChar(40)
+  /// Idade em meses que a faixa cobre. monthsTo a null = sem limite superior.
+  monthsFrom Int?    @map("months_from")
+  monthsTo   Int?    @map("months_to")
   sortOrder Int      @default(0) @map("sort_order")
   isActive  Boolean  @default(true) @map("is_active")
   createdAt DateTime @default(now()) @map("created_at")

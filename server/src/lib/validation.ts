@@ -175,7 +175,15 @@ export const definicoesSchema = z.object({
   preferencesIntro: textoOpcional(600),
   footerText: texto(200, 'O rodapé é obrigatório.').min(1, 'O rodapé é obrigatório.'),
   // Pode ficar vazia: os pais decidem se querem mostrar a nota.
-  giftNote: texto(400, 'A nota é demasiado longa.').default(''),
+  giftNote: texto(400, 'A nota é demasiado longa.'),
+  // Aceita "2026-11-11" ou uma data ISO completa; vazio limpa o campo.
+  dueDate: z
+    .string()
+    .trim()
+    .refine((v) => v === '' || !Number.isNaN(Date.parse(v)), 'A data não é válida.')
+    .transform((v) => (v === '' ? null : new Date(v)))
+    .nullable()
+    .optional(),
   reservationEnabled: z.coerce.boolean(),
   allowThinking: z.coerce.boolean(),
   allowCancellation: z.coerce.boolean(),

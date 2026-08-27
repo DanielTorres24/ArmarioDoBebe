@@ -1,5 +1,7 @@
 import { Esqueleto } from './ui';
 import { pecas } from '../lib/format';
+import { periodoDoAno } from '../lib/estacoes';
+import { useCatalogo } from '../lib/catalogo';
 import type { ContagemPorTamanho } from '../types';
 
 /**
@@ -34,6 +36,8 @@ export default function RoupaPorTamanho({
   onEscolher?: (id: string | null) => void;
   escolhido?: string | null;
 }) {
+  const { settings } = useCatalogo();
+
   if (carregando) {
     return (
       <div className="cartao p-4 sm:p-5">
@@ -52,7 +56,8 @@ export default function RoupaPorTamanho({
     <section className="cartao p-4 sm:p-5" aria-label="Roupa por tamanho">
       <h2 className="text-lg">👕 Roupa por tamanho</h2>
       <p className="mt-1 text-sm text-tinta-suave">
-        É em roupa que as prendas mais se repetem.{' '}
+        É em roupa que as prendas mais se repetem. Ao lado de cada tamanho dizemos em que
+        altura do ano o Diogo lá estará, para se saber que roupa faz sentido.{' '}
         {onEscolher ? 'Toca num tamanho para veres o que já existe.' : null}
       </p>
 
@@ -65,6 +70,7 @@ export default function RoupaPorTamanho({
           const sinal = sinalDeQuantidade(faixa.unidades, faixa.pedidos);
           const largura = (faixa.unidades / maximo) * 100;
           const ativo = escolhido === faixa.id;
+          const periodo = periodoDoAno(settings?.dueDate, faixa.monthsFrom, faixa.monthsTo);
 
           const conteudo = (
             <>
@@ -74,6 +80,13 @@ export default function RoupaPorTamanho({
                   <span aria-hidden="true">{sinal.emoji}</span> {sinal.texto}
                 </span>
               </span>
+
+              {periodo && (
+                <span className="mt-0.5 text-xs text-tinta-suave">
+                  <span aria-hidden="true">{periodo.emojis}</span> {periodo.meses} ·{' '}
+                  {periodo.descricao}
+                </span>
+              )}
 
               <span className="mt-1.5 flex items-center gap-2">
                 {/* A barra é decorativa: o número ao lado é que é lido. */}
@@ -107,6 +120,7 @@ export default function RoupaPorTamanho({
                 >
                   <span className="sr-only">
                     {faixa.label}: {pecas(faixa.unidades)}. {sinal.texto}.
+                    {periodo ? ` ${periodo.meses}, ${periodo.descricao}.` : ''}
                   </span>
                   {conteudo}
                 </button>
@@ -114,6 +128,7 @@ export default function RoupaPorTamanho({
                 <div className="flex flex-col px-3 py-2">
                   <span className="sr-only">
                     {faixa.label}: {pecas(faixa.unidades)}. {sinal.texto}.
+                    {periodo ? ` ${periodo.meses}, ${periodo.descricao}.` : ''}
                   </span>
                   {conteudo}
                 </div>

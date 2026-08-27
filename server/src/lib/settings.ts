@@ -23,6 +23,8 @@ export const DEFINICOES_INICIAIS = {
   allowCancellation: true,
   reserverVisibility: 'PUBLIC',
   reservationTtlDays: null,
+  /** Data prevista para o nascimento — usada para calcular as estações do ano. */
+  dueDate: new Date('2026-11-11T00:00:00.000Z'),
 } as const;
 
 let cache: SiteSettings | null = null;

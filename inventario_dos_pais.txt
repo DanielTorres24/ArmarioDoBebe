@@ -1,0 +1,33 @@
+Cobertores = 6
+mantas = 4
+fraldas = 5
+Mochilas/Sacos = 4
+Muda fraldas de pano = 2
+Toalhas de banho = 2
+Luz presença = 1
+Contorno de berço = 1
+Doudou = 3
+Porta chupeta = 2
+Mordedor = 1
+Biberom zero meses = 5
+Chupeta 0 meses = 2
+Meias = 14
+Luvas = 1
+Sapatos = 1
+Casaco malha = 6
+Babete = 2
+Toucas = 3
+Creme rosto = 2
+Creme zona fralda 4
+Água de limpeza = 3
+Gel de banho = 3
+Body lotion = 3
+Fraldas pacote 2-5 kg - 1
+Toalhitas - 68 packs
+Kit corta unhas = 1
+Kit termometro = 1
+Body manga comprida 0-1 meses = 12
+Body manga curta 0-1 meses = 19
+Casaco 0-2 meses = 8
+Baby grow 0-1 meses = 7
+Camisolas 0-1 meses = 7

@@ -14,22 +14,28 @@ const prisma = new PrismaClient();
 
 const CATEGORIAS = [
   { slug: 'roupas', name: 'Roupas', icon: '👕', sortOrder: 1 },
-  { slug: 'alimentacao', name: 'Alimentação', icon: '🍼', sortOrder: 2 },
-  { slug: 'higiene', name: 'Higiene e cuidados', icon: '🛁', sortOrder: 3 },
-  { slug: 'quarto', name: 'Quarto e sono', icon: '🛏️', sortOrder: 4 },
-  { slug: 'brinquedos', name: 'Brinquedos', icon: '🧸', sortOrder: 5 },
-  { slug: 'passeios', name: 'Passeios e transporte', icon: '🚗', sortOrder: 6 },
-  { slug: 'livros', name: 'Livros', icon: '📚', sortOrder: 7 },
-  { slug: 'outros', name: 'Outros', icon: '💙', sortOrder: 8 },
+  { slug: 'fraldas', name: 'Fraldas e mudas', icon: '🧷', sortOrder: 2 },
+  { slug: 'alimentacao', name: 'Alimentação', icon: '🍼', sortOrder: 3 },
+  { slug: 'higiene', name: 'Higiene e banho', icon: '🛁', sortOrder: 4 },
+  { slug: 'saude', name: 'Saúde', icon: '🌡️', sortOrder: 5 },
+  { slug: 'quarto', name: 'Quarto e sono', icon: '🛏️', sortOrder: 6 },
+  { slug: 'brinquedos', name: 'Brinquedos e conforto', icon: '🧸', sortOrder: 7 },
+  { slug: 'passeios', name: 'Passeios e transporte', icon: '🚗', sortOrder: 8 },
+  { slug: 'livros', name: 'Livros', icon: '📚', sortOrder: 9 },
+  { slug: 'outros', name: 'Outros', icon: '💙', sortOrder: 10 },
 ];
 
+
+// monthsFrom/monthsTo servem para calcular em que estação do ano o bebé
+// estará em cada faixa, a partir da data prevista do parto.
 const FAIXAS = [
-  { slug: '0-3', label: '0-3 meses', sortOrder: 1 },
-  { slug: '3-6', label: '3-6 meses', sortOrder: 2 },
-  { slug: '6-9', label: '6-9 meses', sortOrder: 3 },
-  { slug: '9-12', label: '9-12 meses', sortOrder: 4 },
-  { slug: '12-mais', label: '12+ meses', sortOrder: 5 },
+  { slug: '0-3', label: '0-3 meses', monthsFrom: 0, monthsTo: 3, sortOrder: 1 },
+  { slug: '3-6', label: '3-6 meses', monthsFrom: 3, monthsTo: 6, sortOrder: 2 },
+  { slug: '6-9', label: '6-9 meses', monthsFrom: 6, monthsTo: 9, sortOrder: 3 },
+  { slug: '9-12', label: '9-12 meses', monthsFrom: 9, monthsTo: 12, sortOrder: 4 },
+  { slug: '12-mais', label: '12+ meses', monthsFrom: 12, monthsTo: null, sortOrder: 5 },
 ];
+
 
 const ESTADOS = [
   {
@@ -67,13 +73,14 @@ const ESTADOS = [
 ];
 
 const PREFERENCIAS = [
-  { icon: '👕', title: 'Preferimos roupa confortável e prática', description: 'Algodão macio e fácil de vestir ganha sempre.', sortOrder: 1 },
-  { icon: '🎨', title: 'Gostamos de tons neutros, azul e verde', description: null, sortOrder: 2 },
-  { icon: '📚', title: 'Adoramos livros para bebé', description: 'Livros de pano e de cartão são sempre bem-vindos.', sortOrder: 3 },
-  { icon: '🧸', title: 'Já temos muitos peluches', description: 'Esta é a única categoria em que já estamos servidos!', sortOrder: 4 },
-  { icon: '💙', title: 'Preferimos prendas úteis a decorativas', description: null, sortOrder: 5 },
-  { icon: '📏', title: 'Evitamos tamanhos de recém-nascido', description: 'O Diogo cresce depressa — tamanhos maiores duram mais.', sortOrder: 6 },
+  { icon: '📏', title: 'Já estamos servidos de recém-nascido', description: 'Temos muita roupa de 0-1 meses. Tamanhos a partir dos 3 meses são muito mais úteis.', sortOrder: 1 },
+  { icon: '👕', title: 'Preferimos roupa confortável e prática', description: 'Algodão macio e fácil de vestir ganha sempre.', sortOrder: 2 },
+  { icon: '🎨', title: 'Gostamos de tons neutros, azul e verde', description: null, sortOrder: 3 },
+  { icon: '📚', title: 'Ainda não temos livros', description: 'Livros de pano e de cartão são muito bem-vindos.', sortOrder: 4 },
+  { icon: '🧷', title: 'Fraldas dos tamanhos seguintes dão jeito', description: 'De recém-nascido só temos um pacote — o Diogo passa depressa ao tamanho 2 e 3.', sortOrder: 5 },
+  { icon: '💙', title: 'Preferimos prendas úteis a decorativas', description: null, sortOrder: 6 },
 ];
+
 
 type SemenaDeArtigo = {
   name: string;
@@ -88,36 +95,72 @@ type SemenaDeArtigo = {
 };
 
 const ARTIGOS: SemenaDeArtigo[] = [
-  { name: 'Body branco', categoria: 'roupas', faixa: '0-3', size: '0-3 meses', status: 'OWNED', quantity: 6 },
-  { name: 'Pijama', categoria: 'roupas', faixa: '3-6', size: '3-6 meses', status: 'OWNED', quantity: 3 },
-  { name: 'Roupa para 6-9 meses', categoria: 'roupas', faixa: '6-9', size: '6-9 meses', status: 'NEEDED', priority: 4, description: 'O Diogo já tem bastante roupa para os primeiros meses, mas roupa para os 6-9 meses seria muito útil.', isFeatured: true },
-  { name: 'Roupa para 9-12 meses', categoria: 'roupas', faixa: '9-12', size: '9-12 meses', status: 'NEEDED', priority: 3 },
-  { name: 'Biberão', categoria: 'alimentacao', status: 'OWNED', quantity: 2 },
-  { name: 'Babetes', categoria: 'alimentacao', status: 'SOME', quantity: 3, description: 'Já temos alguns, mas nunca são de mais.' },
-  { name: 'Termómetro', categoria: 'higiene', status: 'NEEDED', priority: 3 },
-  { name: 'Toalha com capuz', categoria: 'higiene', status: 'OWNED', quantity: 2 },
-  { name: 'Manta', categoria: 'quarto', status: 'OWNED', quantity: 2 },
-  { name: 'Luz de presença', categoria: 'quarto', status: 'WANTED', priority: 5, description: 'Para as mudas de fralda a meio da noite sem acordar toda a gente.', isFeatured: true },
-  { name: 'Peluches', categoria: 'brinquedos', status: 'SOME', quantity: 5, description: 'Já temos bastantes — obrigado! 😊' },
-  { name: 'Tapete de atividades', categoria: 'brinquedos', status: 'WANTED', priority: 5, description: 'Seria o presente perfeito para os primeiros meses de brincadeira no chão.', isFeatured: true },
-  { name: 'Livros para bebé', categoria: 'livros', status: 'NEEDED', priority: 4, description: 'Livros de pano ou de cartão, para morder e virar páginas.' },
-  { name: 'Mochila de bebé', categoria: 'passeios', status: 'WANTED', priority: 4 },
+  // ------------------------------- Roupas -------------------------------
+  // O que tem tamanho de recém-nascido entra na faixa 0-3 meses; o resto
+  // fica sem faixa por não haver tamanho indicado na listagem dos papás.
+  { name: 'Body de manga curta', categoria: 'roupas', faixa: '0-3', size: '0-1 meses', status: 'OWNED', quantity: 19 },
+  { name: 'Body de manga comprida', categoria: 'roupas', faixa: '0-3', size: '0-1 meses', status: 'OWNED', quantity: 12 },
+  { name: 'Casaco', categoria: 'roupas', faixa: '0-3', size: '0-2 meses', status: 'OWNED', quantity: 8 },
+  { name: 'Baby grow', categoria: 'roupas', faixa: '0-3', size: '0-1 meses', status: 'OWNED', quantity: 7 },
+  { name: 'Camisola', categoria: 'roupas', faixa: '0-3', size: '0-1 meses', status: 'OWNED', quantity: 7 },
+  { name: 'Casaco de malha', categoria: 'roupas', status: 'OWNED', quantity: 6 },
+  { name: 'Meias', categoria: 'roupas', status: 'OWNED', quantity: 14 },
+  { name: 'Touca', categoria: 'roupas', status: 'OWNED', quantity: 3 },
+  { name: 'Luvas', categoria: 'roupas', status: 'OWNED', quantity: 1 },
+  { name: 'Sapatos', categoria: 'roupas', status: 'OWNED', quantity: 1 },
+
+  // --------------------------- Fraldas e mudas ---------------------------
+  { name: 'Toalhitas', categoria: 'fraldas', status: 'OWNED', quantity: 68, description: 'Pacotes.' },
+  { name: 'Fralda de pano', categoria: 'fraldas', status: 'OWNED', quantity: 5 },
+  { name: 'Creme para a zona da fralda', categoria: 'fraldas', status: 'OWNED', quantity: 4 },
+  { name: 'Muda-fraldas de pano', categoria: 'fraldas', status: 'OWNED', quantity: 2 },
+  { name: 'Fraldas descartáveis 2-5 kg', categoria: 'fraldas', status: 'OWNED', quantity: 1, description: 'Um pacote, tamanho recém-nascido.' },
+
+  // ----------------------------- Alimentação -----------------------------
+  { name: 'Biberão 0 meses', categoria: 'alimentacao', status: 'OWNED', quantity: 5 },
+  { name: 'Chupeta 0 meses', categoria: 'alimentacao', status: 'OWNED', quantity: 2 },
+  { name: 'Porta-chupetas', categoria: 'alimentacao', status: 'OWNED', quantity: 2 },
+  { name: 'Babete', categoria: 'alimentacao', status: 'OWNED', quantity: 2 },
+
+  // --------------------------- Higiene e banho ---------------------------
+  { name: 'Gel de banho', categoria: 'higiene', status: 'OWNED', quantity: 3 },
+  { name: 'Água de limpeza', categoria: 'higiene', status: 'OWNED', quantity: 3 },
+  { name: 'Loção corporal', categoria: 'higiene', status: 'OWNED', quantity: 3 },
+  { name: 'Creme de rosto', categoria: 'higiene', status: 'OWNED', quantity: 2 },
+  { name: 'Toalha de banho', categoria: 'higiene', status: 'OWNED', quantity: 2 },
+
+  // -------------------------------- Saúde --------------------------------
+  { name: 'Kit corta-unhas', categoria: 'saude', status: 'OWNED', quantity: 1 },
+  { name: 'Kit termómetro', categoria: 'saude', status: 'OWNED', quantity: 1 },
+
+  // ---------------------------- Quarto e sono ----------------------------
+  { name: 'Cobertor', categoria: 'quarto', status: 'OWNED', quantity: 6 },
+  { name: 'Manta', categoria: 'quarto', status: 'OWNED', quantity: 4 },
+  { name: 'Luz de presença', categoria: 'quarto', status: 'OWNED', quantity: 1 },
+  { name: 'Contorno de berço', categoria: 'quarto', status: 'OWNED', quantity: 1 },
+
+  // ----------------------- Brinquedos e conforto -------------------------
+  { name: 'Doudou', categoria: 'brinquedos', status: 'OWNED', quantity: 3 },
+  { name: 'Mordedor', categoria: 'brinquedos', status: 'OWNED', quantity: 1 },
+
+  // ------------------------ Passeios e transporte ------------------------
+  { name: 'Mochila ou saco', categoria: 'passeios', status: 'OWNED', quantity: 4 },
 ];
 
+
+// Escritas a partir das falhas reais do inventário: os papás estão servidos
+// para os primeiros meses e não têm nada a partir dos 3.
 const SUGESTOES = [
-  { name: 'Livro infantil', categoria: 'livros', priority: 4, description: 'De pano, de banho ou de cartão grosso.' },
-  { name: 'Babete', categoria: 'alimentacao', priority: 3 },
-  { name: 'Conjunto de meias', categoria: 'roupas', priority: 3 },
-  { name: 'Produtos de higiene', categoria: 'higiene', priority: 2 },
-  { name: 'Roupa', categoria: 'roupas', priority: 5, description: 'Sobretudo tamanhos de 6 meses para cima.' },
-  { name: 'Kit de banho', categoria: 'higiene', priority: 3 },
-  { name: 'Brinquedo educativo', categoria: 'brinquedos', priority: 4 },
-  { name: 'Luz de presença', categoria: 'quarto', priority: 5 },
-  { name: 'Tapete de atividades', categoria: 'brinquedos', priority: 5 },
-  { name: 'Mochila de bebé', categoria: 'passeios', priority: 4 },
-  { name: 'Artigo para o quarto', categoria: 'quarto', priority: 3, description: 'Um candeeiro, uma cadeira de amamentação, uma prateleira.' },
+  { name: 'Roupa 3-6 meses', categoria: 'roupas', priority: 5, description: 'O Diogo terá 3 a 6 meses entre fevereiro e maio — ainda com frio à mistura.' },
+  { name: 'Roupa 6-9 meses', categoria: 'roupas', priority: 5, description: 'De maio a agosto: roupa fresca, de verão.' },
+  { name: 'Roupa 9-12 meses', categoria: 'roupas', priority: 4, description: 'De agosto a novembro, já a arrefecer.' },
+  { name: 'Fraldas tamanho 2 ou 3', categoria: 'fraldas', priority: 4, description: 'Só temos um pacote de recém-nascido — os tamanhos seguintes duram mais.' },
+  { name: 'Livros de pano ou de cartão', categoria: 'livros', priority: 4, description: 'Ainda não temos nenhum livro.' },
+  { name: 'Tapete de atividades', categoria: 'brinquedos', priority: 4, description: 'Para os primeiros meses de brincadeira no chão.' },
+  { name: 'Brinquedo de encaixe ou educativo', categoria: 'brinquedos', priority: 3, description: 'Para quando começar a agarrar as coisas.' },
   { name: 'Contribuição para um artigo maior', categoria: 'outros', priority: 4, description: 'Carrinho, cadeira auto ou cómoda — juntamo-nos e oferecemos em conjunto.' },
 ];
+
 
 async function main() {
   // 1. Definições do site
@@ -128,12 +171,17 @@ async function main() {
 
   if (!definicoesAtuais) {
     await prisma.siteSettings.create({ data: DEFINICOES_INICIAIS });
-  } else if (definicoesAtuais.giftNote.trim() === '') {
-    await prisma.siteSettings.update({
-      where: { id: 1 },
-      data: { giftNote: DEFINICOES_INICIAIS.giftNote },
-    });
-    console.log('Nota sobre prendas usadas preenchida.');
+  } else {
+    // Campos acrescentados depois: nascem vazios em bases que já existiam.
+    // Preenchem-se uma única vez, e só se ainda estiverem por preencher.
+    const porPreencher: { giftNote?: string; dueDate?: Date } = {};
+    if (definicoesAtuais.giftNote.trim() === '') porPreencher.giftNote = DEFINICOES_INICIAIS.giftNote;
+    if (definicoesAtuais.dueDate === null) porPreencher.dueDate = DEFINICOES_INICIAIS.dueDate;
+
+    if (Object.keys(porPreencher).length > 0) {
+      await prisma.siteSettings.update({ where: { id: 1 }, data: porPreencher });
+      console.log(`Definições preenchidas: ${Object.keys(porPreencher).join(', ')}.`);
+    }
   }
 
   // 2. Administrador
@@ -176,7 +224,13 @@ async function main() {
   }
 
   for (const faixa of FAIXAS) {
-    await prisma.ageRange.upsert({ where: { slug: faixa.slug }, create: faixa, update: {} });
+    await prisma.ageRange.upsert({
+      where: { slug: faixa.slug },
+      create: faixa,
+      // Em bases que ja existiam os meses estao a null: preenche-se sem tocar
+      // no que os pais tenham mudado (o rotulo, a ordem).
+      update: { monthsFrom: faixa.monthsFrom, monthsTo: faixa.monthsTo },
+    });
   }
 
   const categorias = new Map(
@@ -208,10 +262,14 @@ async function main() {
           quantity: artigo.quantity ?? 1,
           description: artigo.description ?? null,
           isFeatured: artigo.isFeatured ?? false,
+          // Sao os artigos que os papas ja tinham em casa. ownerId fica a null
+          // de proposito: nao pertencem a nenhum convidado, e e por ownerId
+          // que se distingue o que um convidado pode editar.
+          ownerName: 'Papás',
         },
       });
     }
-    console.log(`${ARTIGOS.length} artigos de exemplo criados.`);
+    console.log(`${ARTIGOS.length} artigos dos papás criados.`);
   }
 
   // 7. Sugestões

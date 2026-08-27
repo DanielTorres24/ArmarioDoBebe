@@ -283,9 +283,22 @@
 
     .lista-tamanhos { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
 
+    .linha-tamanho .rotulo {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .linha-tamanho .estacao {
+      color: #6b7885;
+      font-size: 0.72rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+
     .linha-tamanho {
       display: grid;
-      grid-template-columns: minmax(84px, 26%) 1fr auto;
+      grid-template-columns: minmax(120px, 34%) 1fr auto;
       align-items: center;
       gap: 12px;
       width: 100%;
@@ -433,16 +446,16 @@
       <div class="campo-pesquisa">
         <span aria-hidden="true">🔍</span>
         <label class="oculto-visualmente" for="pesquisa">O que estás a pensar oferecer?</label>
-        <input type="search" id="pesquisa" autocomplete="off" placeholder="Ex.: body, manta, livro, chucha..." />
+        <input type="search" id="pesquisa" autocomplete="off" placeholder="Ex.: body, manta, livro, chupeta..." />
       </div>
 
       <div class="sugestoes-rapidas">
         <span>Experimenta:</span>
         <button type="button" class="atalho" data-termo="body">body</button>
         <button type="button" class="atalho" data-termo="meias">meias</button>
-        <button type="button" class="atalho" data-termo="peluche">peluche</button>
+        <button type="button" class="atalho" data-termo="fralda">fralda</button>
+        <button type="button" class="atalho" data-termo="casaco">casaco</button>
         <button type="button" class="atalho" data-termo="livro">livro</button>
-        <button type="button" class="atalho" data-termo="tapete">tapete</button>
       </div>
 
       <div id="veredito" role="status" aria-live="polite"></div>
@@ -459,7 +472,7 @@
     <!-- ========================= A roupa por tamanho ======================== -->
     <section class="cartao tamanhos" aria-labelledby="t-tamanhos">
       <h2 class="titulo-seccao" id="t-tamanhos">👕 Roupa por tamanho</h2>
-      <p class="sub-seccao">É em roupa que as prendas mais se repetem. Toca num tamanho para veres o que já existe.</p>
+      <p class="sub-seccao">É em roupa que as prendas mais se repetem. Ao lado de cada tamanho dizemos em que altura do ano o Diogo lá estará. Toca num tamanho para veres o que já existe.</p>
       <ul class="lista-tamanhos" id="tamanhos"></ul>
     </section>
 
@@ -496,43 +509,62 @@
 
     const CATEGORIAS = [
       { id: 'roupas',      nome: 'Roupas',                icone: '👕' },
+      { id: 'fraldas',     nome: 'Fraldas e mudas',       icone: '🧷' },
       { id: 'alimentacao', nome: 'Alimentação',           icone: '🍼' },
-      { id: 'higiene',     nome: 'Higiene e cuidados',    icone: '🛁' },
+      { id: 'higiene',     nome: 'Higiene e banho',       icone: '🛁' },
+      { id: 'saude',       nome: 'Saúde',                 icone: '🌡️' },
       { id: 'quarto',      nome: 'Quarto e sono',         icone: '🛏️' },
-      { id: 'brinquedos',  nome: 'Brinquedos',            icone: '🧸' },
+      { id: 'brinquedos',  nome: 'Brinquedos e conforto', icone: '🧸' },
       { id: 'passeios',    nome: 'Passeios e transporte', icone: '🚗' },
       { id: 'livros',      nome: 'Livros',                icone: '📚' },
       { id: 'outros',      nome: 'Outros',                icone: '💙' },
     ];
 
+    // O Diogo nasce a 11 de novembro: daí sai a altura do ano de cada tamanho.
     const TAMANHOS = [
-      { id: '0-3',  rotulo: '0-3 meses' },
-      { id: '3-6',  rotulo: '3-6 meses' },
-      { id: '6-9',  rotulo: '6-9 meses' },
-      { id: '9-12', rotulo: '9-12 meses' },
-      { id: '12+',  rotulo: '12+ meses' },
+      { id: '0-3',  rotulo: '0-3 meses',  meses: 'nov – fev',       estacao: 'outono e inverno',    emojis: '🍂❄️' },
+      { id: '3-6',  rotulo: '3-6 meses',  meses: 'fev – mai',       estacao: 'inverno e primavera', emojis: '❄️🌸' },
+      { id: '6-9',  rotulo: '6-9 meses',  meses: 'mai – ago',       estacao: 'primavera e verão',   emojis: '🌸☀️' },
+      { id: '9-12', rotulo: '9-12 meses', meses: 'ago – nov',       estacao: 'verão e outono',      emojis: '☀️🍂' },
+      { id: '12+',  rotulo: '12+ meses',  meses: 'a partir de nov', estacao: 'outono e inverno',    emojis: '🍂❄️' },
     ];
 
     // estado: OWNED (já temos) · SOME (temos alguns) · NEEDED (faz falta) · WANTED (muito desejado)
+    // Inventário real dos papás.
     const ARTIGOS = [
-      { nome: 'Body branco',           cat: 'roupas',      tam: '0-3',  qtd: 6, estado: 'OWNED',  desc: 'De manga curta e comprida.' },
-      { nome: 'Conjunto de meias',     cat: 'roupas',      tam: '0-3',  qtd: 8, estado: 'OWNED',  desc: 'Vários pares — chegam e sobram.' },
-      { nome: 'Pijama',                cat: 'roupas',      tam: '3-6',  qtd: 3, estado: 'OWNED',  desc: null },
-      { nome: 'Camisola de lã',        cat: 'roupas',      tam: '3-6',  qtd: 2, estado: 'SOME',   desc: null },
-      { nome: 'Roupa para 6-9 meses',  cat: 'roupas',      tam: '6-9',  qtd: 0, estado: 'NEEDED', desc: 'Há muita roupa dos primeiros meses, mas nada para os 6-9.' },
-      { nome: 'Roupa para 9-12 meses', cat: 'roupas',      tam: '9-12', qtd: 0, estado: 'NEEDED', desc: null },
-      { nome: 'Biberão',               cat: 'alimentacao', tam: null,   qtd: 2, estado: 'OWNED',  desc: 'Anti-cólicas.' },
-      { nome: 'Babetes',               cat: 'alimentacao', tam: null,   qtd: 3, estado: 'SOME',   desc: 'Nunca são de mais.' },
-      { nome: 'Chuchas',               cat: 'alimentacao', tam: null,   qtd: 4, estado: 'SOME',   desc: null },
-      { nome: 'Toalha com capuz',      cat: 'higiene',     tam: null,   qtd: 2, estado: 'OWNED',  desc: null },
-      { nome: 'Termómetro',            cat: 'higiene',     tam: null,   qtd: 0, estado: 'NEEDED', desc: 'Ainda não temos nenhum.' },
-      { nome: 'Manta',                 cat: 'quarto',      tam: null,   qtd: 2, estado: 'OWNED',  desc: 'Algodão suave.' },
-      { nome: 'Luz de presença',       cat: 'quarto',      tam: null,   qtd: 0, estado: 'WANTED', desc: 'Para as mudas de fralda a meio da noite.' },
-      { nome: 'Peluches',              cat: 'brinquedos',  tam: null,   qtd: 5, estado: 'SOME',   desc: 'Já temos bastantes — obrigado! 😊' },
-      { nome: 'Tapete de atividades',  cat: 'brinquedos',  tam: null,   qtd: 0, estado: 'WANTED', desc: 'Seria perfeito para os primeiros meses no chão.' },
-      { nome: 'Mochila de bebé',       cat: 'passeios',    tam: null,   qtd: 0, estado: 'WANTED', desc: null },
-      { nome: 'Livros para bebé',      cat: 'livros',      tam: null,   qtd: 1, estado: 'NEEDED', desc: 'De pano ou de cartão, para morder e virar páginas.' },
-      { nome: 'Álbum de fotografias',  cat: 'outros',      tam: null,   qtd: 1, estado: 'OWNED',  desc: null },
+      { nome: 'Body de manga curta',       cat: 'roupas',      tam: '0-3', qtd: 19, estado: 'OWNED', desc: 'Tamanho 0-1 meses.' },
+      { nome: 'Body de manga comprida',    cat: 'roupas',      tam: '0-3', qtd: 12, estado: 'OWNED', desc: 'Tamanho 0-1 meses.' },
+      { nome: 'Casaco',                     cat: 'roupas',      tam: '0-3', qtd: 8,  estado: 'OWNED', desc: 'Tamanho 0-2 meses.' },
+      { nome: 'Baby grow',                  cat: 'roupas',      tam: '0-3', qtd: 7,  estado: 'OWNED', desc: 'Tamanho 0-1 meses.' },
+      { nome: 'Camisola',                   cat: 'roupas',      tam: '0-3', qtd: 7,  estado: 'OWNED', desc: 'Tamanho 0-1 meses.' },
+      { nome: 'Meias',                       cat: 'roupas',      tam: null,  qtd: 14, estado: 'OWNED', desc: null },
+      { nome: 'Casaco de malha',            cat: 'roupas',      tam: null,  qtd: 6,  estado: 'OWNED', desc: null },
+      { nome: 'Touca',                      cat: 'roupas',      tam: null,  qtd: 3,  estado: 'OWNED', desc: null },
+      { nome: 'Luvas',                       cat: 'roupas',      tam: null,  qtd: 1,  estado: 'OWNED', desc: null },
+      { nome: 'Sapatos',                     cat: 'roupas',      tam: null,  qtd: 1,  estado: 'OWNED', desc: null },
+      { nome: 'Toalhitas',                   cat: 'fraldas',     tam: null,  qtd: 68, estado: 'OWNED', desc: 'Pacotes.' },
+      { nome: 'Fralda de pano',             cat: 'fraldas',     tam: null,  qtd: 5,  estado: 'OWNED', desc: null },
+      { nome: 'Creme da zona da fralda',     cat: 'fraldas',     tam: null,  qtd: 4,  estado: 'OWNED', desc: null },
+      { nome: 'Muda-fraldas de pano',        cat: 'fraldas',     tam: null,  qtd: 2,  estado: 'OWNED', desc: null },
+      { nome: 'Fraldas descartáveis 2-5 kg', cat: 'fraldas',     tam: null,  qtd: 1,  estado: 'OWNED', desc: 'Um pacote, recém-nascido.' },
+      { nome: 'Biberão 0 meses',            cat: 'alimentacao', tam: null,  qtd: 5,  estado: 'OWNED', desc: null },
+      { nome: 'Chupeta 0 meses',            cat: 'alimentacao', tam: null,  qtd: 2,  estado: 'OWNED', desc: null },
+      { nome: 'Porta-chupetas',              cat: 'alimentacao', tam: null,  qtd: 2,  estado: 'OWNED', desc: null },
+      { nome: 'Babete',                     cat: 'alimentacao', tam: null,  qtd: 2,  estado: 'OWNED', desc: null },
+      { nome: 'Gel de banho',                cat: 'higiene',     tam: null,  qtd: 3,  estado: 'OWNED', desc: null },
+      { nome: 'Água de limpeza',             cat: 'higiene',     tam: null,  qtd: 3,  estado: 'OWNED', desc: null },
+      { nome: 'Loção corporal',                 cat: 'higiene',     tam: null,  qtd: 3,  estado: 'OWNED', desc: null },
+      { nome: 'Creme de rosto',              cat: 'higiene',     tam: null,  qtd: 2,  estado: 'OWNED', desc: null },
+      { nome: 'Toalha de banho',            cat: 'higiene',     tam: null,  qtd: 2,  estado: 'OWNED', desc: null },
+      { nome: 'Kit corta-unhas',             cat: 'saude',       tam: null,  qtd: 1,  estado: 'OWNED', desc: null },
+      { nome: 'Kit termómetro',              cat: 'saude',       tam: null,  qtd: 1,  estado: 'OWNED', desc: null },
+      { nome: 'Cobertor',                  cat: 'quarto',      tam: null,  qtd: 6,  estado: 'OWNED', desc: null },
+      { nome: 'Manta',                      cat: 'quarto',      tam: null,  qtd: 4,  estado: 'OWNED', desc: null },
+      { nome: 'Luz de presença',             cat: 'quarto',      tam: null,  qtd: 1,  estado: 'OWNED', desc: null },
+      { nome: 'Contorno de berço',           cat: 'quarto',      tam: null,  qtd: 1,  estado: 'OWNED', desc: null },
+      { nome: 'Doudou',                     cat: 'brinquedos',  tam: null,  qtd: 3,  estado: 'OWNED', desc: null },
+      { nome: 'Mordedor',                    cat: 'brinquedos',  tam: null,  qtd: 1,  estado: 'OWNED', desc: null },
+      { nome: 'Mochila ou saco',            cat: 'passeios',    tam: null,  qtd: 4,  estado: 'OWNED', desc: null },
     ];
 
     // ===================================================================
@@ -674,10 +706,16 @@
         botao.setAttribute('aria-pressed', String(ativa));
         botao.setAttribute(
           'aria-label',
-          linha.tamanho.rotulo + ': ' + plural(linha.unidades, 'peça', 'peças') + ' — ' + sinal.texto,
+          linha.tamanho.rotulo + ': ' + plural(linha.unidades, 'peça', 'peças') + ' — ' + sinal.texto +
+            '. ' + linha.tamanho.meses + ', ' + linha.tamanho.estacao + '.',
         );
 
-        botao.append(criar('span', 'rotulo', linha.tamanho.rotulo));
+        const rotulo = criar('span', 'rotulo');
+        rotulo.append(criar('span', null, linha.tamanho.rotulo));
+        rotulo.append(
+          criar('small', 'estacao', linha.tamanho.emojis + ' ' + linha.tamanho.meses + ' · ' + linha.tamanho.estacao),
+        );
+        botao.append(rotulo);
         botao.append(medidor(linha.unidades, maximo));
 
         const valor = criar('span', 'valor');

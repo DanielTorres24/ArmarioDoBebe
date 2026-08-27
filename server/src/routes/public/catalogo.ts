@@ -116,6 +116,9 @@ catalogoRouter.get(
       return {
         id: faixa.id,
         label: faixa.label,
+        // O frontend usa isto com a data prevista para dizer a estacao do ano.
+        monthsFrom: faixa.monthsFrom,
+        monthsTo: faixa.monthsTo,
         unidades: unidades(dela),
         pedidos: dela.filter((a) => !posse(a.status)).length,
       };

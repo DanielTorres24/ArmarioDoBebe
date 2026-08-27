@@ -16,6 +16,8 @@ export interface AgeRange {
   id: string;
   label: string;
   slug: string;
+  monthsFrom: number | null;
+  monthsTo: number | null;
   sortOrder: number;
   isActive: boolean;
   _count?: { items: number };
@@ -116,6 +118,8 @@ export interface SiteSettings {
   footerText: string;
   /** Nota sobre prendas em segunda mão. Vazia = não aparece. */
   giftNote: string;
+  /** Data prevista do parto (ISO). Base do cálculo das estações do ano. */
+  dueDate: string | null;
   reservationEnabled: boolean;
   allowThinking: boolean;
   allowCancellation: boolean;
@@ -154,6 +158,8 @@ export interface ContagemPorCategoria {
 export interface ContagemPorTamanho {
   id: string;
   label: string;
+  monthsFrom: number | null;
+  monthsTo: number | null;
   unidades: number;
   pedidos: number;
 }

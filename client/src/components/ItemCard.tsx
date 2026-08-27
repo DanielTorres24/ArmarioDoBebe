@@ -1,6 +1,7 @@
 import { Botao, Etiqueta, juntar } from './ui';
 import { tomDoEstado, useCatalogo, useEstado } from '../lib/catalogo';
 import { pecas } from '../lib/format';
+import { periodoDoAno } from '../lib/estacoes';
 import type { Item } from '../types';
 
 /**
@@ -21,12 +22,16 @@ export default function ItemCard({
   onEditar?: (item: Item) => void;
   onRemover?: (item: Item) => void;
 }) {
-  const { settings, statuses } = useCatalogo();
+  const { settings, statuses, ageRanges } = useCatalogo();
   const estadoDe = useEstado(statuses);
   const estado = estadoDe(item.status);
 
   // Só faz sentido dizer "já tem N" do que é posse; um pedido não se conta.
   const jaTem = item.status === 'OWNED' || item.status === 'SOME';
+
+  // Que altura do ano o bebé terá neste tamanho — ajuda a escolher a roupa.
+  const faixa = ageRanges.find((intervalo) => intervalo.id === item.ageRangeId);
+  const periodo = periodoDoAno(settings?.dueDate, faixa?.monthsFrom, faixa?.monthsTo);
 
   const minhaReserva = item.reservations.find((reserva) => reserva.isMine);
   const reservaDeOutro = item.reservations.find((reserva) => !reserva.isMine);
@@ -58,6 +63,11 @@ export default function ItemCard({
       <div className="mb-2 flex flex-wrap gap-1.5">
         {item.category && <Etiqueta>{item.category.name}</Etiqueta>}
         {item.ageRange && <Etiqueta tom="neutro">{item.ageRange.label}</Etiqueta>}
+        {periodo && (
+          <Etiqueta tom="neutro">
+            <span aria-hidden="true">{periodo.emojis}</span> {periodo.descricao}
+          </Etiqueta>
+        )}
         {item.size && !item.ageRange && <Etiqueta tom="neutro">{item.size}</Etiqueta>}
         {item.status === 'WANTED' && item.priority >= 4 && (
           <Etiqueta tom="ambar">⭐ Prioridade {item.priority}</Etiqueta>
