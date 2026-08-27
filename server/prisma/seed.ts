@@ -241,49 +241,66 @@ async function main() {
   );
 
   // 5. Preferências
-  if ((await prisma.parentPreference.count()) === 0) {
-    await prisma.parentPreference.createMany({ data: PREFERENCIAS });
+  // Uma a uma, e não "só se a tabela estiver vazia": assim uma preferência
+  // nova na lista aparece no deploy seguinte, em vez de ficar para trás.
+  let preferenciasCriadas = 0;
+  for (const preferencia of PREFERENCIAS) {
+    const existe = await prisma.parentPreference.findFirst({ where: { title: preferencia.title } });
+    if (existe) continue;
+    await prisma.parentPreference.create({ data: preferencia });
+    preferenciasCriadas++;
   }
+  if (preferenciasCriadas > 0) console.log(`${preferenciasCriadas} preferências criadas.`);
 
-  // 6. Artigos de exemplo
-  if ((await prisma.item.count()) === 0) {
-    for (const artigo of ARTIGOS) {
-      const categoryId = categorias.get(artigo.categoria);
-      if (!categoryId) continue;
+  // 6. Artigos dos papás
+  // Também um a um. A guarda é o próprio artigo já existir, e não a tabela ter
+  // linhas: com a guarda antiga, bastava um convidado ter acrescentado alguma
+  // coisa para o inventário dos papás nunca mais entrar.
+  let artigosCriados = 0;
+  for (const artigo of ARTIGOS) {
+    const categoryId = categorias.get(artigo.categoria);
+    if (!categoryId) continue;
 
-      await prisma.item.create({
-        data: {
-          name: artigo.name,
-          categoryId,
-          ageRangeId: artigo.faixa ? (faixas.get(artigo.faixa) ?? null) : null,
-          size: artigo.size ?? null,
-          status: artigo.status,
-          priority: artigo.priority ?? 2,
-          quantity: artigo.quantity ?? 1,
-          description: artigo.description ?? null,
-          isFeatured: artigo.isFeatured ?? false,
-          // Sao os artigos que os papas ja tinham em casa. ownerId fica a null
-          // de proposito: nao pertencem a nenhum convidado, e e por ownerId
-          // que se distingue o que um convidado pode editar.
-          ownerName: 'Papás',
-        },
-      });
-    }
-    console.log(`${ARTIGOS.length} artigos dos papás criados.`);
+    const existe = await prisma.item.findFirst({ where: { name: artigo.name, ownerId: null } });
+    if (existe) continue;
+
+    await prisma.item.create({
+      data: {
+        name: artigo.name,
+        categoryId,
+        ageRangeId: artigo.faixa ? (faixas.get(artigo.faixa) ?? null) : null,
+        size: artigo.size ?? null,
+        status: artigo.status,
+        priority: artigo.priority ?? 2,
+        quantity: artigo.quantity ?? 1,
+        description: artigo.description ?? null,
+        isFeatured: artigo.isFeatured ?? false,
+        // Sao os artigos que os papas ja tinham em casa. ownerId fica a null
+        // de proposito: nao pertencem a nenhum convidado, e e por ownerId
+        // que se distingue o que um convidado pode editar.
+        ownerName: 'Papás',
+      },
+    });
+    artigosCriados++;
   }
+  if (artigosCriados > 0) console.log(`${artigosCriados} artigos dos papás criados.`);
 
   // 7. Sugestões
-  if ((await prisma.suggestion.count()) === 0) {
-    await prisma.suggestion.createMany({
-      data: SUGESTOES.map((sugestao) => ({
+  let sugestoesCriadas = 0;
+  for (const sugestao of SUGESTOES) {
+    const existe = await prisma.suggestion.findFirst({ where: { name: sugestao.name } });
+    if (existe) continue;
+    await prisma.suggestion.create({
+      data: {
         name: sugestao.name,
         description: sugestao.description ?? null,
         categoryId: categorias.get(sugestao.categoria) ?? null,
         priority: sugestao.priority,
-      })),
+      },
     });
-    console.log(`${SUGESTOES.length} sugestões criadas.`);
+    sugestoesCriadas++;
   }
+  if (sugestoesCriadas > 0) console.log(`${sugestoesCriadas} sugestões criadas.`);
 
   console.log('Seed concluído. 💙');
 }
