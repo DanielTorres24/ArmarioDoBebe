@@ -33,3 +33,11 @@ Baby grow 0-1 meses = 7
 Camisolas 0-1 meses = 7
 Livros para os país = 2
 Livros para o bebé = 0
+
+Body manga comprida 3-6 meses = 4
+Baby grow 3-6 meses = 3
+Camisola 3-6 meses = 2
+Calcas 3-6 meses = 1
+Body manga curta 6-9 meses = 3
+Calcoes 6-9 meses = 2
+Conjunto de verao 6-9 meses = 1

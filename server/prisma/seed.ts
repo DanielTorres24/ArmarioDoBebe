@@ -109,6 +109,17 @@ const ARTIGOS: SemenaDeArtigo[] = [
   { name: 'Luvas', categoria: 'roupas', status: 'OWNED', quantity: 1 },
   { name: 'Sapatos', categoria: 'roupas', status: 'OWNED', quantity: 1 },
 
+  // Roupa dos escaloes seguintes, escolhida a pensar na altura do ano:
+  // 3-6 meses cai entre fevereiro e maio (inverno e primavera), 6-9 meses
+  // entre maio e agosto (primavera e verao).
+  { name: 'Body de manga comprida 3-6 meses', categoria: 'roupas', faixa: '3-6', size: '3-6 meses', status: 'OWNED', quantity: 4 },
+  { name: 'Baby grow 3-6 meses', categoria: 'roupas', faixa: '3-6', size: '3-6 meses', status: 'OWNED', quantity: 3 },
+  { name: 'Camisola 3-6 meses', categoria: 'roupas', faixa: '3-6', size: '3-6 meses', status: 'OWNED', quantity: 2 },
+  { name: 'Calças 3-6 meses', categoria: 'roupas', faixa: '3-6', size: '3-6 meses', status: 'OWNED', quantity: 1 },
+  { name: 'Body de manga curta 6-9 meses', categoria: 'roupas', faixa: '6-9', size: '6-9 meses', status: 'OWNED', quantity: 3 },
+  { name: 'Calções 6-9 meses', categoria: 'roupas', faixa: '6-9', size: '6-9 meses', status: 'OWNED', quantity: 2 },
+  { name: 'Conjunto de verão 6-9 meses', categoria: 'roupas', faixa: '6-9', size: '6-9 meses', status: 'OWNED', quantity: 1 },
+
   // --------------------------- Fraldas e mudas ---------------------------
   { name: 'Toalhitas', categoria: 'fraldas', status: 'OWNED', quantity: 68, description: 'Pacotes.' },
   { name: 'Fralda de pano', categoria: 'fraldas', status: 'OWNED', quantity: 5 },
