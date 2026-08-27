@@ -1,17 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 
-import { EstadoVazio, Esqueleto, Etiqueta, juntar } from '../../components/ui';
-import { adminApi } from '../../lib/api';
-import { dataCurta, plural } from '../../lib/format';
-import type { DashboardData } from '../../types';
+import RoupaPorTamanho from '../../components/RoupaPorTamanho';
+import { EstadoVazio, Esqueleto } from '../../components/ui';
+import { adminApi, api } from '../../lib/api';
+import { pecas } from '../../lib/format';
+import type { DashboardData, Estatisticas } from '../../types';
 
-const ROTULOS_DE_RESERVA: Record<string, string> = {
-  THINKING: 'A pensar',
-  RESERVED: 'Reservada',
-  GIFTED: 'Oferecida',
-  CANCELLED: 'Cancelada',
-};
 
 /**
  * Barras de uma só cor: medem grandeza, não identidade.
@@ -40,15 +34,22 @@ function Barras({ linhas }: { linhas: { id: string; label: string; valor: number
 
 export default function Dashboard() {
   const [dados, setDados] = useState<DashboardData | null>(null);
+  const [stats, setStats] = useState<Estatisticas | null>(null);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState('');
 
   useEffect(() => {
     let ativo = true;
 
-    adminApi
-      .dashboard()
-      .then((resposta) => ativo && setDados(resposta))
+    // O /api/stats já conta unidades (e não linhas) por categoria e por
+    // tamanho de roupa — é o mesmo cálculo que o site público mostra, para os
+    // dois lados não darem números diferentes.
+    Promise.all([adminApi.dashboard(), api.stats()])
+      .then(([painel, numeros]) => {
+        if (!ativo) return;
+        setDados(painel);
+        setStats(numeros);
+      })
       .catch((problema: unknown) => {
         if (ativo) setErro(problema instanceof Error ? problema.message : 'Não foi possível carregar.');
       })
@@ -79,14 +80,10 @@ export default function Dashboard() {
   const { totals } = dados;
 
   const cartoes = [
-    { valor: totals.items, rotulo: 'artigos no total', emoji: '📦' },
-    { valor: totals.needed, rotulo: 'fazem falta', emoji: '🟢' },
-    { valor: totals.wanted, rotulo: 'muito desejados', emoji: '⭐' },
-    { valor: totals.owned + totals.some, rotulo: 'já existentes', emoji: '🔴' },
+    { valor: totals.units, rotulo: 'peças no armário', emoji: '🧺' },
+    { valor: totals.items, rotulo: 'artigos', emoji: '📦' },
+    { valor: totals.needed + totals.wanted, rotulo: 'por oferecer', emoji: '🟢' },
     { valor: totals.reservations, rotulo: 'reservas', emoji: '🤝' },
-    { valor: totals.thinking, rotulo: 'ainda a pensar', emoji: '🟠' },
-    { valor: totals.reserved, rotulo: 'confirmadas', emoji: '🎁' },
-    { valor: totals.units, rotulo: 'peças (com quantidades)', emoji: '🧺' },
   ];
 
   return (
@@ -110,96 +107,36 @@ export default function Dashboard() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <section className="cartao p-5" aria-labelledby="titulo-categorias">
-          <h2 id="titulo-categorias" className="mb-4 text-lg">
-            Artigos por categoria
+          <h2 id="titulo-categorias" className="mb-1 text-lg">
+            Peças por categoria
           </h2>
-          {dados.byCategory.length === 0 ? (
+          <p className="mb-4 text-sm text-tinta-suave">
+            Conta unidades, não linhas: um artigo com 6 unidades vale 6.
+          </p>
+
+          {!stats || stats.porCategoria.length === 0 ? (
             <p className="text-sm text-tinta-suave">Ainda não há categorias.</p>
           ) : (
             <Barras
-              linhas={dados.byCategory.map((categoria) => ({
+              linhas={stats.porCategoria.map((categoria) => ({
                 id: categoria.id,
                 label: `${categoria.icon} ${categoria.name}`,
-                valor: categoria.count,
+                valor: categoria.unidades,
               }))}
             />
           )}
-        </section>
 
-        <section className="cartao p-5" aria-labelledby="titulo-ultimos">
-          <div className="mb-4 flex items-center justify-between gap-2">
-            <h2 id="titulo-ultimos" className="text-lg">
-              Últimos artigos
-            </h2>
-            <Link to="/admin/items" className="text-sm font-bold text-azul-700 underline underline-offset-2">
-              Ver todos
-            </Link>
-          </div>
-
-          {dados.latestItems.length === 0 ? (
-            <p className="text-sm text-tinta-suave">Ainda não há artigos.</p>
-          ) : (
-            <ul className="flex flex-col gap-2.5">
-              {dados.latestItems.map((item) => (
-                <li key={item.id} className="flex items-start justify-between gap-3">
-                  <span>
-                    <span className="block font-bold [overflow-wrap:anywhere]">{item.name}</span>
-                    <span className="text-xs text-tinta-suave">
-                      {item.category?.name}
-                      {item.ownerName ? ` · por ${item.ownerName}` : ' · pelos pais'}
-                    </span>
-                  </span>
-                  <span className="shrink-0 text-xs text-tinta-suave">{dataCurta(item.createdAt)}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-
-        <section className="cartao p-5 lg:col-span-2" aria-labelledby="titulo-reservas">
-          <div className="mb-4 flex items-center justify-between gap-2">
-            <h2 id="titulo-reservas" className="text-lg">
-              Últimas reservas
-            </h2>
-            <Link
-              to="/admin/reservations"
-              className="text-sm font-bold text-azul-700 underline underline-offset-2"
-            >
-              Ver todas
-            </Link>
-          </div>
-
-          {dados.latestReservations.length === 0 ? (
-            <p className="text-sm text-tinta-suave">
-              Ainda ninguém reservou nada. {plural(totals.needed, 'artigo está', 'artigos estão')} à
-              espera de quem os ofereça.
+          {stats && (
+            <p className="mt-4 border-t border-azul-100 pt-3 text-sm font-bold text-azul-700">
+              {pecas(stats.totalUnidades)} no total.
             </p>
-          ) : (
-            <ul className="flex flex-col gap-2.5">
-              {dados.latestReservations.map((reserva) => (
-                <li
-                  key={reserva.id}
-                  className={juntar(
-                    'flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-azul-50 px-3 py-2.5',
-                  )}
-                >
-                  <span>
-                    <span className="block font-bold [overflow-wrap:anywhere]">
-                      {reserva.item?.name ?? 'Artigo removido'}
-                    </span>
-                    <span className="text-xs text-tinta-suave">
-                      {reserva.guestName}
-                      {reserva.guestEmail ? ` · ${reserva.guestEmail}` : ''}
-                    </span>
-                  </span>
-                  <Etiqueta tom={reserva.status === 'THINKING' ? 'ambar' : 'verde'}>
-                    {ROTULOS_DE_RESERVA[reserva.status] ?? reserva.status}
-                  </Etiqueta>
-                </li>
-              ))}
-            </ul>
           )}
         </section>
+
+        <RoupaPorTamanho
+          dados={stats?.roupaPorTamanho ?? []}
+          semTamanho={stats?.roupaSemTamanho}
+        />
       </div>
     </>
   );

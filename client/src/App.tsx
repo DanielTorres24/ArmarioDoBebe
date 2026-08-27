@@ -5,11 +5,6 @@ import Layout from './components/Layout';
 import AdminLayout from './components/admin/AdminLayout';
 
 import Home from './pages/Home';
-import Armario from './pages/Armario';
-import Precisamos from './pages/Precisamos';
-import MaisDesejados from './pages/MaisDesejados';
-import Sugestoes from './pages/Sugestoes';
-import Preferencias from './pages/Preferencias';
 import NaoEncontrado from './pages/NaoEncontrado';
 
 import Login from './pages/admin/Login';
@@ -26,14 +21,18 @@ export default function App() {
     <CatalogoProvider>
       <BrowserRouter>
         <Routes>
-          {/* Área pública */}
+          {/* Área pública: uma página só, com tudo. */}
           <Route element={<Layout />}>
             <Route index element={<Home />} />
-            <Route path="armario" element={<Armario />} />
-            <Route path="precisamos" element={<Precisamos />} />
-            <Route path="mais-desejados" element={<MaisDesejados />} />
-            <Route path="sugestoes" element={<Sugestoes />} />
-            <Route path="preferencias" element={<Preferencias />} />
+
+            {/* Os endereços antigos continuam a funcionar: alguém pode ter
+                guardado o link de quando eram páginas separadas. */}
+            <Route path="armario" element={<Navigate to="/" replace />} />
+            <Route path="precisamos" element={<Navigate to="/" replace />} />
+            <Route path="mais-desejados" element={<Navigate to="/" replace />} />
+            <Route path="sugestoes" element={<Navigate to="/" replace />} />
+            <Route path="preferencias" element={<Navigate to="/" replace />} />
+
             <Route path="*" element={<NaoEncontrado />} />
           </Route>
 

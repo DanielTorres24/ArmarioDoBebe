@@ -30,12 +30,15 @@ export default function ListaDeArtigos({
   ordemInicial = 'newest',
   mostrarFiltroDeEstado = true,
   permitirAdicionar = true,
+  selecao,
   vazio,
 }: {
   filtrosFixos?: FiltrosDeArtigos;
   ordemInicial?: EstadoDosFiltros['sort'];
   mostrarFiltroDeEstado?: boolean;
   permitirAdicionar?: boolean;
+  /** Escolha vinda de fora (categorias e tamanhos), que manda nos filtros. */
+  selecao?: { category?: string | null; ageRange?: string | null };
   vazio: { titulo: string; texto: string; emoji?: string; imagem?: string };
 }) {
   const { convidado } = useCatalogo();
@@ -49,6 +52,17 @@ export default function ListaDeArtigos({
   });
   const [dialogo, setDialogo] = useState<Dialogo>(null);
   const [aviso, setAviso] = useState<Aviso | null>(null);
+
+  const categoriaEscolhida = selecao?.category ?? null;
+  const faixaEscolhida = selecao?.ageRange ?? null;
+
+  useEffect(() => {
+    setFiltros((anteriores) => ({
+      ...anteriores,
+      category: categoriaEscolhida ?? '',
+      ageRange: faixaEscolhida ?? '',
+    }));
+  }, [categoriaEscolhida, faixaEscolhida]);
 
   const pedido = useMemo<FiltrosDeArtigos>(
     () => ({

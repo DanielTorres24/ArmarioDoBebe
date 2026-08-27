@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import NotaDePrendas from '../components/NotaDePrendas';
-import { Botao, EstadoVazio, Esqueleto, Etiqueta, juntar } from '../components/ui';
+import { Botao, EstadoVazio, Esqueleto, Etiqueta, juntar } from './ui';
 import { api } from '../lib/api';
 import { pecas } from '../lib/format';
 import { useCatalogo } from '../lib/catalogo';
@@ -10,11 +9,10 @@ import type { ContagemPorCategoria, Estatisticas, Suggestion } from '../types';
 /**
  * "Não sabes o que oferecer?" — ideias que os pais deixaram, por categoria.
  *
- * Esta página filtrava por orçamento. Deixou de o fazer: em vez de dizer quanto
- * custa, diz quantas peças já existem naquela categoria, que é o que evita
- * repetidos.
+ * Ao lado de cada ideia diz-se quantas peças já existem nessa categoria, que é
+ * o que evita repetidos.
  */
-export default function Sugestoes() {
+export default function SugestoesSeccao() {
   const { categories } = useCatalogo();
 
   const [categoria, setCategoria] = useState<string | null>(null);
@@ -48,16 +46,14 @@ export default function Sugestoes() {
     id ? stats?.porCategoria.find((c) => c.id === id) : undefined;
 
   return (
-    <>
-      <header className="mb-5">
-        <h1 className="text-3xl">🤔 Não sabes o que oferecer?</h1>
-        <p className="mt-2 max-w-2xl text-tinta-suave">
-          Estas são ideias que os pais deixaram sugeridas. Ao lado de cada uma dizemos quantas peças
-          o Diogo já tem nessa categoria, para não haver repetidos.
+    <section aria-labelledby="t-sugestoes">
+      <header className="mb-4">
+        <h2 id="t-sugestoes" className="text-lg">🤔 Não sabes o que oferecer?</h2>
+        <p className="mt-1 text-sm text-tinta-suave">
+          Ideias que os pais deixaram sugeridas. Ao lado de cada uma dizemos quantas peças o Diogo já
+          tem nessa categoria, para não haver repetidos.
         </p>
       </header>
-
-      <NotaDePrendas className="mb-5" />
 
       <div role="group" aria-label="Filtrar por categoria" className="mb-6 flex flex-wrap gap-2">
         <button
@@ -143,7 +139,7 @@ export default function Sugestoes() {
                     {sugestao.priority >= 4 && <Etiqueta tom="ambar">⭐ Muito útil</Etiqueta>}
                   </div>
 
-                  <h2 className="mb-1.5 text-lg [overflow-wrap:anywhere]">{sugestao.name}</h2>
+                  <h3 className="mb-1.5 text-lg [overflow-wrap:anywhere]">{sugestao.name}</h3>
 
                   {sugestao.description && (
                     <p className="text-sm text-tinta-suave [overflow-wrap:anywhere]">
@@ -177,10 +173,10 @@ export default function Sugestoes() {
         )}
       </section>
 
-      <p className="mt-6 text-sm text-tinta-suave">
-        Estas são ideias genéricas. Para reservares uma prenda concreta e evitares repetidos, vê a
-        página <strong>🎁 Faz falta</strong>.
+      <p className="mt-4 text-sm text-tinta-suave">
+        Estas são ideias genéricas. Para reservares uma prenda concreta, usa a lista de artigos aqui
+        acima.
       </p>
-    </>
+    </section>
   );
 }

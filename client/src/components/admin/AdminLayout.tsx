@@ -5,14 +5,12 @@ import { Botao, Esqueleto, juntar } from '../ui';
 import { adminApi } from '../../lib/api';
 import { limparTokenDeAdmin, lerTokenDeAdmin } from '../../lib/adminAuth';
 
+// Só o essencial: os números e o armário. As restantes páginas continuam a
+// existir e a funcionar pelo endereço directo (/admin/settings, /admin/reservations,
+// ...) — basta voltar a pô-las aqui para reaparecerem no menu.
 const SECCOES = [
   { para: '/admin', rotulo: 'Dashboard', emoji: '📊', exato: true },
   { para: '/admin/items', rotulo: 'Armário', emoji: '📦' },
-  { para: '/admin/categories', rotulo: 'Categorias', emoji: '🏷️' },
-  { para: '/admin/suggestions', rotulo: 'Sugestões', emoji: '🎁' },
-  { para: '/admin/reservations', rotulo: 'Reservas', emoji: '🤝' },
-  { para: '/admin/preferences', rotulo: 'Preferências', emoji: '💙' },
-  { para: '/admin/settings', rotulo: 'Definições', emoji: '⚙️' },
 ];
 
 /**

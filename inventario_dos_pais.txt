@@ -16,7 +16,7 @@ Luvas = 1
 Sapatos = 1
 Casaco malha = 6
 Babete = 2
-Toucas = 3
+Toucas/Gorros = 3
 Creme rosto = 2
 Creme zona fralda 4
 Água de limpeza = 3
@@ -31,3 +31,5 @@ Body manga curta 0-1 meses = 19
 Casaco 0-2 meses = 8
 Baby grow 0-1 meses = 7
 Camisolas 0-1 meses = 7
+Livros para os país = 2
+Livros para o bebé = 0

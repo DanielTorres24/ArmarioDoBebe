@@ -57,6 +57,33 @@ export default function Items() {
   const [aEditar, setAEditar] = useState<AdminItem | 'novo' | null>(null);
   const [aRemover, setARemover] = useState<AdminItem | null>(null);
   const [aviso, setAviso] = useState<Aviso | null>(null);
+  const [aAjustar, setAAjustar] = useState<string | null>(null);
+
+  /**
+   * Aumenta ou diminui a quantidade de um artigo.
+   * Nunca desce abaixo de 1: para deixar de existir, remove-se o artigo — é
+   * uma decisão diferente, e tem confirmação própria.
+   */
+  const ajustarQuantidade = async (item: AdminItem, delta: number) => {
+    const nova = item.quantity + delta;
+    if (nova < 1 || nova > 999 || aAjustar) return;
+
+    setAAjustar(item.id);
+    // Atualiza já na lista; se o servidor recusar, repõe-se.
+    setItems((atuais) => atuais.map((a) => (a.id === item.id ? { ...a, quantity: nova } : a)));
+
+    try {
+      await adminApi.editarArtigo(item.id, { quantity: nova });
+    } catch (problema) {
+      setItems((atuais) => atuais.map((a) => (a.id === item.id ? { ...a, quantity: item.quantity } : a)));
+      setAviso({
+        tipo: 'erro',
+        mensagem: problema instanceof Error ? problema.message : 'Não foi possível alterar a quantidade.',
+      });
+    } finally {
+      setAAjustar(null);
+    }
+  };
 
   const carregar = useCallback(async () => {
     setCarregando(true);
@@ -171,7 +198,6 @@ export default function Items() {
                     </Etiqueta>
                     {item.category && <Etiqueta tom="neutro">{item.category.name}</Etiqueta>}
                     {item.ageRange && <Etiqueta tom="neutro">{item.ageRange.label}</Etiqueta>}
-                    {item.quantity > 1 && <Etiqueta tom="neutro">{item.quantity}x</Etiqueta>}
                     {item.isFeatured && <Etiqueta tom="ambar">★ Destaque</Etiqueta>}
                     {item.status === 'WANTED' && <Etiqueta tom="ambar">Prioridade {item.priority}</Etiqueta>}
                     {reservasAtivas.length > 0 && (
@@ -183,7 +209,35 @@ export default function Items() {
                   )}
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex items-center gap-1 rounded-pill border border-azul-200 bg-white p-1">
+                    <button
+                      type="button"
+                      className="grid h-9 w-9 place-items-center rounded-full text-lg font-extrabold text-azul-700 transition hover:bg-azul-50 disabled:opacity-40"
+                      onClick={() => void ajustarQuantidade(item, -1)}
+                      disabled={item.quantity <= 1 || aAjustar === item.id}
+                      aria-label={`Diminuir a quantidade de ${item.name}`}
+                    >
+                      −
+                    </button>
+                    <span
+                      className="min-w-[2ch] text-center font-extrabold tabular-nums"
+                      aria-live="polite"
+                      aria-label={`${item.quantity} unidades de ${item.name}`}
+                    >
+                      {item.quantity}
+                    </span>
+                    <button
+                      type="button"
+                      className="grid h-9 w-9 place-items-center rounded-full text-lg font-extrabold text-azul-700 transition hover:bg-azul-50 disabled:opacity-40"
+                      onClick={() => void ajustarQuantidade(item, 1)}
+                      disabled={item.quantity >= 999 || aAjustar === item.id}
+                      aria-label={`Aumentar a quantidade de ${item.name}`}
+                    >
+                      +
+                    </button>
+                  </div>
+
                   <Botao variante="suave" tamanho="pequeno" onClick={() => setAEditar(item)}>
                     Editar
                   </Botao>

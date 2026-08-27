@@ -1,6 +1,7 @@
 import { Esqueleto } from './ui';
 import { pecas } from '../lib/format';
 import { periodoDoAno } from '../lib/estacoes';
+import { sinalDeQuantidade } from '../lib/sinais';
 import { useCatalogo } from '../lib/catalogo';
 import type { ContagemPorTamanho } from '../types';
 
@@ -11,18 +12,6 @@ import type { ContagemPorTamanho } from '../types';
  * O número aparece sempre em texto ao lado, para não depender de se medir a
  * barra a olho, e o sinal (🔴 🟡 🟢 ⭐) repete a leitura sem ser só pela cor.
  */
-
-/** O mesmo critério da demo, para os dois lados dizerem o mesmo. */
-export function sinalDeQuantidade(unidades: number, pedidos: number) {
-  if (unidades === 0 && pedidos > 0) {
-    return { emoji: '⭐', texto: 'Pedido dos pais' };
-  }
-  if (unidades === 0) return { emoji: '🟢', texto: 'Faz falta' };
-  if (unidades <= 2) return { emoji: '🟠', texto: 'Tem pouco' };
-  if (unidades <= 5) return { emoji: '🟡', texto: 'Tem alguns' };
-  return { emoji: '🔴', texto: 'Já tem bastante' };
-}
-
 export default function RoupaPorTamanho({
   dados,
   semTamanho,
