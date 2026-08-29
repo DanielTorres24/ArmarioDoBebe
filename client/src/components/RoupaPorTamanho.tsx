@@ -56,7 +56,7 @@ export default function RoupaPorTamanho({
 
       <ul className="mt-4 space-y-1">
         {dados.map((faixa) => {
-          const sinal = sinalDeQuantidade(faixa.unidades, faixa.pedidos);
+          const sinal = sinalDeQuantidade(faixa.unidades, faixa.pedidos, 'tamanho');
           const largura = (faixa.unidades / maximo) * 100;
           const ativo = escolhido === faixa.id;
           const periodo = periodoDoAno(settings?.dueDate, faixa.monthsFrom, faixa.monthsTo);

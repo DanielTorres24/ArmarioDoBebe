@@ -582,10 +582,21 @@
     const ehPedido = (artigo) => artigo.estado === 'NEEDED' || artigo.estado === 'WANTED';
 
     /** Traduz um número de unidades num sinal com cor e palavras. */
-    function sinalDeQuantidade(unidades) {
+    /**
+     * Duas escalas, porque a mesma quantidade não quer dizer o mesmo:
+     * 6 bibes são muitos bibes, mas 6 peças para cobrir três meses inteiros
+     * de roupa são poucas.
+     */
+    const ESCALAS = {
+      artigo:  { pouco: 2, alguns: 5 },
+      tamanho: { pouco: 2, alguns: 20 },
+    };
+
+    function sinalDeQuantidade(unidades, escala = 'artigo') {
       if (unidades === 0) return { classe: 'nenhuns', emoji: '🟢', texto: 'Faz falta' };
-      if (unidades <= 2)  return { classe: 'poucos',  emoji: '🟠', texto: 'Tem pouco' };
-      if (unidades <= 5)  return { classe: 'alguns',  emoji: '🟡', texto: 'Tem alguns' };
+      const limites = ESCALAS[escala];
+      if (unidades <= limites.pouco)  return { classe: 'poucos', emoji: '🟠', texto: 'Tem pouco' };
+      if (unidades <= limites.alguns) return { classe: 'alguns', emoji: '🟡', texto: 'Tem alguns' };
       return { classe: 'muitos', emoji: '🔴', texto: 'Já tem bastante' };
     }
 
@@ -704,7 +715,7 @@
         const sinal =
           linha.unidades === 0 && linha.artigos.some(ehPedido)
             ? SINAL_PEDIDO
-            : sinalDeQuantidade(linha.unidades);
+            : sinalDeQuantidade(linha.unidades, 'tamanho');
 
         const ativa = Boolean(filtro && filtro.tipo === 'tam' && filtro.valor === linha.tamanho.id);
 
